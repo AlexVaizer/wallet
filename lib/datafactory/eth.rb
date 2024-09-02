@@ -30,10 +30,9 @@ module DataFactory
 			}
 			return info 
 		end
-		def self.get_statements(address,ethApiKey,logger)
+		def self.get_statements(address,ethApiKey)
 			if MOCK_DATA_FOR.include?(ENVIRONMENT)
 				statements = Marshal.load(Marshal.dump(MOCK_DATA[:tx_list]))
-				#logger.debug(statements)
 			else
 				params = TX_LIST_PARAMS.merge({address: address})
 				logger.debug("getting from etherscan")
