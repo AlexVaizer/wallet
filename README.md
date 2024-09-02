@@ -19,16 +19,23 @@ Deployment and work is tested on Ubuntu 22.04.3 LTS hosted on AWS virtual machin
 
 
 # Installation (For Ubuntu)
- - Install ruby v3.0.2 and other deps: `sudo apt install curl ruby-full ruby-bundler ruby-dev net-tools libsqlite3-dev sqlite3 build-essential zlib1g-dev libreadline-dev libssl-dev libcurl4-openssl-dev nginx snapd`
+ - Install ruby v3.0.2 and other deps:
+   ```
+   sudo apt install curl ruby-full ruby-bundler ruby-dev net-tools libsqlite3-dev sqlite3 build-essential zlib1g-dev libreadline-dev libssl-dev libcurl4-openssl-dev nginx snapd
+   ```
  - Prepare AWS credentials for Route53 DNS challenge https://certbot-dns-route53.readthedocs.io/en/stable/, save them to `/root/.aws/config` file
- - Install certbot and get SSL certificates: `sudo snap install core; sudo snap refresh core; sudo snap install --classic certbot; sudo snap install certbot-dns-route53; sudo certbot certonly --dns-route53` and copy the path where certificates are saved, you gonna need it on Service Setup step
+ - Install certbot and get SSL certificates:
+   ```
+   sudo snap install core; sudo snap refresh core; sudo snap install --classic certbot; sudo snap install certbot-dns-route53; sudo certbot certonly --dns-route53
+   ```
+ - Copy the path where certificates were saved, you gonna need it on Service Setup step
  - Create pre and post hooks to restart nginx during certificates renewal:
-```
-sudo sh -c 'printf "#!/bin/sh\nservice nginx stop\n" > /etc/letsencrypt/renewal-hooks/pre/nginx.sh'
-sudo sh -c 'printf "#!/bin/sh\nservice nginx start\n" > /etc/letsencrypt/renewal-hooks/post/nginx.sh'
-sudo chmod 755 /etc/letsencrypt/renewal-hooks/pre/nginx.sh
-sudo chmod 755 /etc/letsencrypt/renewal-hooks/post/nginx.sh
-```
+   ```
+   sudo sh -c 'printf "#!/bin/sh\nservice nginx stop\n" > /etc/letsencrypt/renewal-hooks/pre/nginx.sh'
+   sudo sh -c 'printf "#!/bin/sh\nservice nginx start\n" > /etc/letsencrypt/renewal-hooks/post/nginx.sh'
+   sudo chmod 755 /etc/letsencrypt/renewal-hooks/pre/nginx.sh
+   sudo chmod 755 /etc/letsencrypt/renewal-hooks/post/nginx.sh
+   ```
  - Clone the repo: `git clone https://github.com/AlexVaizer/wallet.git`
  - Install dependencies: `cd ./wallet/ && bundle install`
  - Get a Monobank API Token: https://api.monobank.ua/, run clientInfo request to retrieve your Account IDs
