@@ -35,7 +35,6 @@ module DataFactory
 				statements = Marshal.load(Marshal.dump(MOCK_DATA[:tx_list]))
 			else
 				params = TX_LIST_PARAMS.merge({address: address})
-				logger.debug("getting from etherscan")
 				statements = DataFactory.send_request(ETH_API_URL, '', params, ethApiKey)
 			end
 			return statements
