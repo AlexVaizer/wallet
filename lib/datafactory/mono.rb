@@ -45,8 +45,8 @@ module DataFactory
 			if DataFactory::MOCK_DATA_FOR.include?(ENVIRONMENT) then
 				statements = Marshal.load(Marshal.dump(DataFactory::Mono::MOCK_DATA[:statements]))
 			else
-				url = URI.join(DataFactory::Mono::API_URL, "#{DataFactory::Mono::STATEMENTS_PATH}/#{user.requestedAccount.id}/#{date_start}/#{date_end}").to_s
-				statements = DataFactory.send_request(url, user.monoApiKey)
+				url = URI.join(DataFactory::Mono::API_URL, "#{DataFactory::Mono::STATEMENTS_PATH}/#{selected_account}/#{date_start}/#{date_end}").to_s
+				statements = DataFactory.send_request(url, monoApiKey)
 			end
 			return statements
 		end
