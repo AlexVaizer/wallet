@@ -1,0 +1,10 @@
+*.gem
+./ssl/*
+./logs/*
+./.bundle/*
+jwt_keys
+*.DS_Store
+*.pid
+*.sqlite
+*.lock
+create_users.rb
