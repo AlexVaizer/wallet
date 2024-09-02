@@ -1,0 +1,11 @@
+server {
+    ssl_certificate <%="#{@env_values['ssl']}/cert.pem;"%>
+    ssl_certificate_key <%="#{@env_values['ssl']}/privkey.pem;"%>
+    add_header Strict-Transport-Security "max-age=31536000; includeSubdomains;";
+    listen <%="#{@env_values['port']} ssl;"%>
+    server_name <%="#{@env_values['domain']};"%>
+
+    location / {
+        proxy_pass http://localhost:8080;
+    }
+}

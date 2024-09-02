@@ -1,0 +1,21 @@
+[Unit]
+Description=Sinatra Wallet service
+After=network.target
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+User=root
+Environment=<%= "'RACK_ENV=production'" %>
+Environment=<%= "'WALLET_DB_PATH=#{@env_values['db_path']}'" %>
+Environment=<%= "'WALLET_ENV=production'" %>
+WorkingDirectory=<%=ServerSettings::CURRENT_FOLDER%>
+ExecStart=<%=File.join(ServerSettings::CURRENT_FOLDER, 'wallet.rb')%>
+ExecStop=<%=File.join(ServerSettings::CURRENT_FOLDER,'stop.rb')%>
+
+
+SyslogIdentifier=wallet.service
+
+
+[Install]
+WantedBy=default.target

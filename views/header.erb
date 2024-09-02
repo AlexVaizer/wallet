@@ -1,0 +1,34 @@
+<div class='w3-<%=@accent_color%> w3-bar w3-responsive' id='header'>
+	<%cards_colors = {
+		:white => 'white',
+		:black => 'black',
+		:eaid => 'cyan',
+		:fop => 'red',
+		:crypt => 'green'
+	}
+	@user.accountsList.list.each do |account|
+		color = cards_colors[account.type.downcase.to_sym]
+		acc_display = {row1: '', row2: ''}
+		case account.type
+		when 'CRYPT'
+			acc_display[:row1] = account.maskedPan
+			acc_display[:row2] = "#{account.balanceUsd} USD"
+		when 'FOP'
+			acc_display[:row1] = account.maskedPanFull
+			acc_display[:row2] = "#{account.balance} #{account.currencyCode}"
+		else
+			acc_display[:row1] = account.maskedPan
+			acc_display[:row2] = "#{account.balance} #{account.currencyCode}"
+		end%>
+		<a href="./?id=<%=account.id%>" id="bar-account-link">
+			<div class='w3-bar-item w3-hover-<%=color%> w3-round-large' id='bar-item'>
+				<span id="bar-item-row1"><%= acc_display[:row1] %></span> <br>
+				<span id="bar-item-row2"><%= acc_display[:row2] %></span>
+			</div>
+		</a>
+	<% end %>
+	<div class='w3-bar-item w3-right' id='bar-item-last'>
+		<%= "DB Upd: #{@user.clientInfo.timeUpdated.strftime(Model::TIME_FORMAT)}" %> <br>
+		<%= @user.clientInfo.name %>
+	</div>
+</div>

@@ -1,0 +1,24 @@
+<%
+acc = @user.requestedAccount
+case acc.type
+when 'CRYPT'
+	row2 = "#{acc.balance} #{acc.currencyCode} || Rate: #{acc.ethUsdRate}"
+	row1 = acc.maskedPanFull
+else 
+	row1 = "#{acc.balance} #{acc.currencyCode} <b>#{acc.type}</b>"
+	row2 = @user.requestedAccount.maskedPanFull
+end  
+%>
+
+<div class='w3-container w3-margin-top content-section' id="single-card-section">
+	<div class="w3-card-4 w3-margin-right" id='single-card-list'>
+		<div class="w3-bar" id="single-card-item">
+			<a href="./" class="w3-bar-item w3-hover-<%=@hover_color%> w3-white w3-xlarge w3-left w3-middle" id='single-card-link'><</a>
+			<img src="./public/<%=@user.requestedAccount.currencyCode%>.png" class="w3-bar-item w3-circle w3-hide-small item-image" id='single-card-image'>
+			<div class="w3-bar-item" id="single-card-details">
+						<span class="w3-large" id="single-card-details-row1"><%= row1 %></span><br>
+						<span class='w3-margin-top' id="single-card-details-row2"><%= row2 %></span>
+			</div>
+		</div>
+	</div>
+</div>

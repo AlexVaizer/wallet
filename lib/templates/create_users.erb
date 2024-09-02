@@ -1,0 +1,19 @@
+module DataFactory
+	module DataFactory::SQLite
+		def self.create_mock_users
+			<%@users.each do |user|%>
+				self.create(:user, {
+					id: '<%=user[:username]%>', 
+					password: '<%=user[:password]%>', 
+					monoApiKey: '<%=user[:monoApiKey]%>', 
+					allowedAccountIds: '<%=user[:allowedAccountIds]%>',
+					allowedJarIds: '<%=user[:allowedJarIds]%>',
+					ethAddresses: '<%=user[:ethAddresses]%>',
+					ethApiKey: '<%=user[:ethApiKey]%>'
+				})		
+			<%end%>
+		end
+	end
+end
+
+DataFactory::SQLite.create_mock_users
