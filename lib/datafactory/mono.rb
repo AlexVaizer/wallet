@@ -33,7 +33,7 @@ module DataFactory
 			],
 		}
 		def self.get_client_info(user)
-			if DataFactory::MOCK_DATA_FOR.include?(ENVIRONMENT) then
+			if DataFactory::MOCK_DATA_FOR.include?(DataFactory::ENVIRONMENT) then
 				client_info = Marshal.load(Marshal.dump(DataFactory::Mono::MOCK_DATA[:client_info]))
 			else
 				url = URI.join(DataFactory::Mono::API_URL, DataFactory::Mono::CLIENT_INFO_PATH).to_s
@@ -42,7 +42,7 @@ module DataFactory
 			return client_info
 		end
 		def self.get_statements(selected_account,monoApiKey, date_start = Time.now.to_i - 30*24*60*60, date_end = Time.now.to_i)
-			if DataFactory::MOCK_DATA_FOR.include?(ENVIRONMENT) then
+			if DataFactory::MOCK_DATA_FOR.include?(DataFactory::ENVIRONMENT) then
 				statements = Marshal.load(Marshal.dump(DataFactory::Mono::MOCK_DATA[:statements]))
 			else
 				url = URI.join(DataFactory::Mono::API_URL, "#{DataFactory::Mono::STATEMENTS_PATH}/#{selected_account}/#{date_start}/#{date_end}").to_s
