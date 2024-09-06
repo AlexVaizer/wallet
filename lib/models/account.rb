@@ -1,5 +1,21 @@
 module Model
 	class Account < Base
+		DATA_MODEL = {
+			tableName: 'accounts',
+			idField: 'id',
+			fields: [ 
+				{ name: 'id', type: 'TEXT'},
+				{ name: 'balance', type: 'NUMERIC'},
+				{ name: 'balanceUsd', type: 'NUMERIC'},
+				{ name: 'currencyCode', type: 'TEXT'},
+				{ name: 'type', type: 'TEXT'},
+				{ name: 'maskedPan', type: 'TEXT'},
+				{ name: 'maskedPanFull', type: 'TEXT'},
+				{ name: 'ethUsdRate', type: 'NUMERIC'},
+				{ name: 'userId', type: 'TEXT'},
+				{ name: 'timeUpdated', type: 'TEXT'},
+			]
+		}
 		PAYMENT_SYSTEMS = {
 			'5' => 'MC',
 			'4' => 'VISA'
@@ -17,8 +33,8 @@ module Model
 			@ethUsdRate = options[:ethUsdRate] || 0
 			@userId = options[:userId] || ''
 			@error = nil
-			@model = :account
 			@statements = nil
+			@model = DATA_MODEL
 			return true
 		end
 		def to_h
@@ -85,7 +101,7 @@ module Model
 				model = Model::Account.new(acc, @logger)
 				@list.push(model)
 			}
-			@model = :account
+			@model = Account::DATA_MODEL
 			return true
 		end
 		def selectById(id)
@@ -95,7 +111,7 @@ module Model
 			Model.logDebug(@logger, "Getting All Accounts List from DB")
 			data = DataFactory::SQLite.get_all(@model)
 			if data.nil? || data.empty?
-				@errors = {code: 404,message:"Could not find #{@model} by '#{userId}' id"}
+				@errors = {code: 404,message:"Could not find #{@model[:tableName]} by '#{userId}' id"}
 				Model.logError(@logger, @errors.to_s)
 				return false
 			else

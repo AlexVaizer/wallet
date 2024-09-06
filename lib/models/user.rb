@@ -1,6 +1,20 @@
 module Model
 	class User < Base
 		require 'bcrypt'
+		DATA_MODEL = {
+			tableName: 'user',
+			idField: 'id',
+			fields: [ 
+				{ name: 'id', type: 'TEXT'},
+				{ name: 'password', type: 'TEXT'},
+				{ name: 'monoApiKey', type: 'TEXT'},
+				{ name: 'allowedAccountIds', type: 'TEXT'},
+				{ name: 'allowedJarIds', type: 'TEXT'},
+				{ name: 'ethAddresses', type: 'TEXT'},
+				{ name: 'ethApiKey', type: 'TEXT'},
+				{ name: 'timeUpdated', type: 'TEXT'}
+			]
+		}
 		ATTRS = [:id, :password, :monoApiKey, :allowedAccountIds, :ethAddresses, :ethApiKey,:clientInfo,:accountsList,:requestedAccountId, :requestedAccount, :jarsList]
 		attr_accessor *ATTRS
 		def parseOptions(options)
@@ -13,11 +27,11 @@ module Model
 			@ethApiKey = options[:ethApiKey] || ''
 			@requestedAccountId = options[:requestedAccountId] || nil
 			@error = nil
-			@model = :user
 			@accountsList = nil
 			@clientInfo = nil
 			@jarsList = nil
 			@requestedAccount = nil
+			@model = DATA_MODEL
 			return true
 		end
 		def parseCryptedPass()
