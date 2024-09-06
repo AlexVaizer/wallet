@@ -7,4 +7,4 @@ jwt_keys
 *.pid
 *.sqlite
 *.lock
-create_users.rb
+create_users.json
