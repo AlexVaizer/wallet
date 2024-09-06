@@ -29,9 +29,6 @@ env = env.to_sym
 enable :logging
 require 'logger'
 ServerSettings::ENV = ServerSettings.validate_env(env)
-logger = Logger.new(STDOUT)
-logger.level = 'debug' if ENV['WALLET_DEBUG_MODE'] == 'true'
-logger.debug(ServerSettings::ENV)
 ServerSettings.save_pid
 ServerSettings.create_token_keypair
 migration = Controller::Migration.new
@@ -63,6 +60,9 @@ end
 	set :allow_origin, '*'
 	set :views, Proc.new { File.join(root, "views") }
 
+	before do 
+		logger.level = 'debug' if ENV['WALLET_DEBUG_MODE'] == 'true'
+	end
 	get '/login' do 
 		erb :login
 	end
