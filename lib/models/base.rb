@@ -7,11 +7,10 @@ module Model
 			self.parseOptions(options)
 		end
 		def getFromDb()
-			Model.logDebug(@logger, "Getting #{@model} by '#{@id}' id from DB")
+			Model.logDebug(@logger, "Getting #{@model[:tableName]} by '#{@id}' id from DB")
 			data = DataFactory::SQLite.get(@model, @id)
-			#Model.logDebug(@logger, "DB Response: #{data}")
 			if data.nil? || data.empty?
-				@errors = {code: 404,message:"Could not find #{@model} by '#{@id}' id"}
+				@errors = {code: 404,message:"Could not find #{@model[:tableName]} by '#{@id}' id"}
 				Model.logError(@logger, @errors.to_s)
 				return false
 			else
@@ -21,7 +20,7 @@ module Model
 		end
 		def saveToDb
 			data = self.to_h
-			Model.logDebug(@logger, "Saving #{@model} to DB: #{data[:id]}")	
+			Model.logDebug(@logger, "Saving #{@model[:tableName]} to DB: #{data[:id]}")	
 			DataFactory::SQLite.create(@model, data)
 			return true
 		end
