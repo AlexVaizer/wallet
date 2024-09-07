@@ -1,6 +1,7 @@
 module ServerSettings
 	require 'erb'
 	require 'openssl'
+	require 'json'
 	ALLOWED_ENVS = [:development, :test, :production]
 	IP = '127.0.0.1'
 	PORT = 8080
@@ -10,8 +11,7 @@ module ServerSettings
 	NGINX_DESTINATION_PATH = '/etc/nginx/sites-available'
 	CURRENT_FOLDER = `pwd`.chomp
 	DEBUG_MESSAGES_FOR = [:development, :test]
-	CREATE_MOCK_USERS_TEMPLATE = './lib/templates/create_users.erb'
-	CREATE_USERS_DESTINATION_PATH = './create_users.rb'
+	CREATE_USERS_DESTINATION_PATH = './create_users.json'
 	JWT_KEYPAIR_PATH = File.expand_path './jwt_keys'
 	JWT_SIGN_FILE_NAME = 'token.rsa'
 	JWT_VERIFY_FILE_NAME = 'token.rsa.pub'
@@ -24,13 +24,11 @@ module ServerSettings
 		end
 	end
 
-	def ServerSettings.create_users(users)
-		@users = users
-		if !@users.empty?
+	def ServerSettings.create_users(users = [])
+		if !users.empty?
 			puts "Creating #{CREATE_USERS_DESTINATION_PATH}. This file will be run on each server start to re-create users"
-			service_settings = ERB.new(File.read(File.expand_path(ServerSettings::CREATE_MOCK_USERS_TEMPLATE)))
 			out_file = File.new("#{ServerSettings::CREATE_USERS_DESTINATION_PATH}", "w")
-			out_file.puts(service_settings.result(binding))
+			out_file.puts(users.to_json)
 			out_file.close
 		end
 	end

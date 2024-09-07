@@ -1,5 +1,6 @@
 require File.expand_path('./lib/server_settings.rb')
-require  File.expand_path'./lib/datafactory/sqlite.rb'
+#require  File.expand_path('./lib/datafactory/sqlite.rb')
+require 'bcrypt'
 
 
 values = {}
@@ -27,7 +28,7 @@ users = []
 users_number.times do |user|
 	user = {}
 	puts "Enter Username"
-	user[:username] = gets.chomp
+	user[:id] = gets.chomp
 	puts "Enter Password"
 	user[:password] = BCrypt::Password.create(gets.chomp)
 	puts "Enter Monobank Api Key. For using local data for FE debug enter any string"

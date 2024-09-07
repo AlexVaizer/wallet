@@ -1,5 +1,17 @@
 module Model
-	class ClientInfo < Base 
+	class ClientInfo < Base
+		DATA_MODEL = {
+			tableName: 'clients',
+			idField: 'id',
+			fields:[
+				{ name: 'id', type: 'TEXT'},
+				{ name: 'clientId', type: 'TEXT'},
+				{ name: 'name', type: 'TEXT'},
+				{ name: 'webHookUrl', type: 'TEXT'},
+				{ name: 'permissions', type: 'TEXT' },
+				{ name: 'timeUpdated', type: 'TEXT'}
+			]
+		}
 		ATTRS = [:clientId, :name, :webHookUrl, :permissions, :timeUpdated, :id, :isValid]
 		attr_accessor *ATTRS
 		def parseOptions(options)
@@ -14,7 +26,7 @@ module Model
 			end
 			@id = options[:id]
 			@error = nil
-			@model = :clientInfo
+			@model = DATA_MODEL
 			return true
 		end
 		def to_h

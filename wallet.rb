@@ -22,17 +22,17 @@ require File.expand_path('./lib/models/account.rb')
 require File.expand_path('./lib/models/statement.rb')
 require File.expand_path('./lib/models/jar.rb')
 require File.expand_path('./lib/token.rb')
+require File.expand_path('./lib/controller.rb')
 #########################################################
-
 env = ENV['WALLET_ENV'] || 'development'
 env = env.to_sym
 enable :logging
+require 'logger'
 ServerSettings::ENV = ServerSettings.validate_env(env)
 ServerSettings.save_pid
 ServerSettings.create_token_keypair
-DataFactory::SQLite.migrate_db
-require File.expand_path('./create_users.rb') if File.exist?('./create_users.rb')
-
+migration = Controller::Migration.new
+migration.run!
 
 helpers do 
 	def protected!
@@ -60,10 +60,9 @@ end
 	set :allow_origin, '*'
 	set :views, Proc.new { File.join(root, "views") }
 
-	before do
+	before do 
 		logger.level = 'debug' if ENV['WALLET_DEBUG_MODE'] == 'true'
 	end
-
 	get '/login' do 
 		erb :login
 	end

@@ -1,5 +1,19 @@
 module Model
 	class Jar < Base
+		DATA_MODEL = {
+			tableName: 'jars',
+			idField: 'id',
+			fields: [ 
+				{ name: 'id', type: 'TEXT'},
+				{ name: 'sendId', type: 'TEXT'},
+				{ name: 'title', type: 'TEXT'},
+				{ name: 'description', type: 'TEXT'},
+				{ name: 'currencyCode', type: 'TEXT'},
+				{ name: 'balance', type: 'NUMERIC'},
+				{ name: 'goal', type: 'NUMERIC'},
+				{ name: 'timeUpdated', type: 'TEXT'}
+			]
+		}
 		PRINTABLE_ATTRS = [:id, :sendId, :title, :description, :currencyCode, :balance, :goal]
 		attr_accessor(*PRINTABLE_ATTRS) 
 		def parseOptions(options)
@@ -11,7 +25,7 @@ module Model
 			@balance = options[:balance] 
 			@goal = options[:goal]
 			@error = nil
-			@model = :jar
+			@model = DATA_MODEL
 			return true
 		end
 		def parseMonobankJar(options)
@@ -43,7 +57,7 @@ module Model
 				model = Model::Jar.new(acc, @logger)
 				@list.push(model)
 			}
-			@model = :jar
+			@model = Jar::DATA_MODEL
 			return true
 		end
 		def saveToDb()
@@ -56,7 +70,7 @@ module Model
 			Model.logDebug(@logger, "Getting All Jars List from DB")
 			data = DataFactory::SQLite.get_all(@model)
 			if data.nil? || data.empty?
-				@errors = {code: 404,message:"Could not find #{@model}"}
+				@errors = {code: 404,message:"Could not find #{@model[:tableName]}"}
 				Model.logError(@logger, @errors.to_s)
 				return false
 			else
