@@ -57,39 +57,39 @@ module Model
 		def parseOptions(options)
 			@list = []
 			options.each {|opt| 
-				model = Model::Statement.new(opt,@logger)
+				model = Model::Statement.new(opt)
 				@list.push(model)
 			}
-			@model = nil
+			#@model = nil
 			return true
 		end
 		def parseMonobankStatements(options)
 			@list = []
 			options.each {|opt| 
-				model = Model::Statement.new({},@logger)
+				model = Model::Statement.new()
 				model.parseMonobankStatement(opt)
 				@list.push(model)
 			}
-			@model = nil
+			#@model = nil
 			return true
 		end
 		def parseEtherscanStatements(options,address)
 			@list = []
 			options.each {|opt| 
-				model = Model::Statement.new({},@logger)
+				model = Model::Statement.new()
 				model.parseEtherscanStatement(opt,address)
 				@list.push(model)
 			}
-			@model = nil
+			#@model = nil
 			return true
 		end
 		def getMonobankStatements(accountId,monoApiKey)
-			Model.logDebug(@logger, "Getting Statements from Monobank by AccountId: #{accountId}")
+			logger.debug("Getting Statements from Monobank by AccountId: #{accountId}")
 			self.parseMonobankStatements(DataFactory::Mono.get_statements(accountId,monoApiKey))
 			return true
 		end
 		def getEtherscanStatements(accountId,ethApiKey)
-			Model.logDebug(@logger, "Getting Statements from Etherscan by AccountId: #{accountId}")
+			logger.debug("Getting Statements from Etherscan by AccountId: #{accountId}")
 			self.parseEtherscanStatements(DataFactory::ETH.get_statements(accountId,ethApiKey),accountId)
 			return true
 		end

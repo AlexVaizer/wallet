@@ -54,39 +54,38 @@ module Model
 		def parseOptions(options)
 			@list = []
 			options.each {|acc| 
-				model = Model::Jar.new(acc, @logger)
+				model = Model::Jar.new(acc)
 				@list.push(model)
 			}
 			@model = Jar::DATA_MODEL
 			return true
 		end
 		def saveToDb()
-			Model.logDebug(@logger, "Saving Jars to DB")
 			@list.each { |jar|
+				logger.debug("Saving #{jar.model[:tableName]} #{jar.id} to DB")
 				DataFactory::SQLite.create(jar.model, jar.to_h)
 			}
 		end
 		def getFromDbByUser()
-			Model.logDebug(@logger, "Getting All Jars List from DB")
+			logger.debug("Getting All Jars List from DB")
 			data = DataFactory::SQLite.get_all(@model)
 			if data.nil? || data.empty?
 				@errors = {code: 404,message:"Could not find #{@model[:tableName]}"}
-				Model.logError(@logger, @errors.to_s)
-				return false
+				logger.error(@errors.to_s)
 			else
 				self.parseOptions(data)
-				return true
 			end
+			return self
 		end
 		def parseMonobankJars(jars,allowedJars)
 			@list = []
 			jars.each { |jar|
 				jar = jar.transform_keys(&:to_sym)
-				obj = Model::Jar.new({},@logger)
+				obj = Model::Jar.new()
 				obj.parseMonobankJar(jar)
 				@list.push(obj)
 			}
-			Model.logDebug(@logger, "Filtering retrieved jars by: #{allowedJars}")
+			logger.debug("Filtering retrieved jars by: #{allowedJars}")
 			self.filterByIdsList(allowedJars)
 		end
 	end

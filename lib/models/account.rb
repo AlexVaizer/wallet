@@ -84,12 +84,12 @@ module Model
 			return true
 		end
 		def getStatements(options = {monoApiKey: '', ethApiKey: ''})
-			@statements = Model::StatementsList.new([],@logger)
+			@statements = Model::StatementsList.new([])
 			if @type == 'CRYPT' then 
-				Model.logDebug(@logger, "Getting Statements from Etherscan for account: #{id}")
+				logger.debug("Getting Statements from Etherscan for account: #{id}")
 				@statements.getEtherscanStatements(@id,options[:ethApiKey])
 			else
-				Model.logDebug(@logger, "Getting Statements from Monobank for account: #{id}")
+				logger.debug("Getting Statements from Monobank for account: #{id}")
 				@statements.getMonobankStatements(@id,options[:monoApiKey])
 			end
 		end
@@ -98,7 +98,7 @@ module Model
 		def parseOptions(options)
 			@list = []
 			options.each {|acc| 
-				model = Model::Account.new(acc, @logger)
+				model = Model::Account.new(acc)
 				@list.push(model)
 			}
 			@model = Account::DATA_MODEL
@@ -108,35 +108,34 @@ module Model
 			return result = @list.select{|i| i.id == id}.first
 		end
 		def getFromDbByUser(userId)
-			Model.logDebug(@logger, "Getting All Accounts List from DB")
+			logger.debug("Getting All Accounts List from DB")
 			data = DataFactory::SQLite.get_all(@model)
 			if data.nil? || data.empty?
 				@errors = {code: 404,message:"Could not find #{@model[:tableName]} by '#{userId}' id"}
-				Model.logError(@logger, @errors.to_s)
-				return false
+				logger.error(@errors.to_s)
 			else
 				self.parseOptions(data)
-				return true
 			end
+			return self
 		end
 		def parseApi(monoAccounts = [], ethAccounts = [],last_price = {},allowedAccounts = [],userId = '')
 			monoAccounts.each { |acc|
-				obj = Model::Account.new({}, @logger)
+				obj = Model::Account.new({})
 				obj.parseMonobankAccount(acc,userId)
 				@list.push(obj)
 			}
 			ethAccounts.each { |acc|
-				obj = Model::Account.new({}, @logger)
+				obj = Model::Account.new({})
 				obj.parseEtherscanAccount(acc,last_price,userId)
 				@list.push(obj)
 			}
 			@list.sort_by! {|acc| [acc.type,acc.currencyCode]}
-			Model.logDebug(@logger, "Filtering retrieved accounts by: #{allowedAccounts}")
+			logger.debug("Filtering retrieved accounts by: #{allowedAccounts}")
 			self.filterByIdsList(allowedAccounts)
 		end
 		def saveToDb()
 			@list.each { |acc|
-				Model.logDebug(@logger, "Saving Account to DB")
+				logger.debug("Saving Account #{acc.id} to DB")
 				DataFactory::SQLite.create(@model, acc.to_h)
 			}
 		end

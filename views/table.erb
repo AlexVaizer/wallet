@@ -1,10 +1,10 @@
 <%
 	@table_content = {}
 	
-	if @user.requestedAccount.type == 'CRYPT' then
+	if @c.requestedAccount.type == 'CRYPT' then
 		@table_content[:headers] = ['Time', 'Amount', 'TX Link', 'Gas fee']
 		@table_content[:width] = [20,20,38,20]
-		@table_content[:content] = @user.requestedAccount.statements.list.map { |e|   
+		@table_content[:content] = @c.requestedAccount.statements.list.map { |e|   
 			{
 				time: e.time,
 				amount: e.amount,
@@ -15,7 +15,7 @@
 	else
 		@table_content[:headers] = ['Time', 'Amount', 'Description', 'Balance']
 		@table_content[:width] = [20,20,38,20]
-		@table_content[:content] = @user.requestedAccount.statements.list.map { |e| {
+		@table_content[:content] = @c.requestedAccount.statements.list.map { |e| {
 				time: e.time,
 				amount: e.amount,
 				description: e.description,

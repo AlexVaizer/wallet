@@ -6,7 +6,7 @@
 		:fop => 'red',
 		:crypt => 'green'
 	}
-	@user.accountsList.list.each do |account|
+	@c.accountsList.list.each do |account|
 		color = cards_colors[account.type.downcase.to_sym]
 		acc_display = {row1: '', row2: ''}
 		case account.type
@@ -28,7 +28,7 @@
 		</a>
 	<% end %>
 	<div class='w3-bar-item w3-right' id='bar-item-last'>
-		<%= "DB Upd: #{@user.clientInfo.timeUpdated.strftime(Model::TIME_FORMAT)}" %> <br>
-		<%= @user.clientInfo.name %>
+		<%= "DB Upd: #{@c.clientInfo.timeUpdated.strftime(Model::TIME_FORMAT)}" %> <br>
+		<%= @c.clientInfo.name %>
 	</div>
 </div>
