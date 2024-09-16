@@ -10,7 +10,7 @@
 		<%= erb :header %>
 		<div class='w3-container' id='content'>
 			<% begin %>
-				<% if @user.requestedAccount && !@user.requestedAccount.id.empty? then %>			
+				<% if @c.requestedAccount && !@c.requestedAccount.id.empty? then %>			
 					<%= erb :single_card %>
 					<%= erb :table%>
 				<% else %>

@@ -1,9 +1,9 @@
-<%# if !@user.jarsList.list.empty?%>
+<% if !@c.jarsList.list.empty?%>
 <div class='w3-container w3-margin-bottom content-section' id='jars-section'>
 	
 	<h1 id='jars-header'>Jars:</h1>
 	<ul class="w3-ul w3-card-4 items-list" id='jars-list'>
-		<% @user.jarsList.list.each do |jar| %>
+		<% @c.jarsList.list.each do |jar| %>
 			<li class="w3-bar" >
 				<img src="./public/<%=jar.currencyCode%>.png" class="w3-bar-item w3-circle w3-hide-small item-image" id='jar-image'>
 				<div class="w3-bar-item">
@@ -14,4 +14,4 @@
 		<%end%>
 	</ul>
 </div>
-<%#end%>
+<%end%>

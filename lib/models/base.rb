@@ -1,35 +1,35 @@
 module Model
 	class Base
+		include Logging
 		attr_reader :model
-		attr_accessor :error, :logger
-		def initialize(options = {},logger = nil)
-			@logger = logger
+		attr_accessor :error
+		def initialize(options = {})
 			self.parseOptions(options)
 		end
 		def getFromDb()
-			Model.logDebug(@logger, "Getting #{@model[:tableName]} by '#{@id}' id from DB")
+			logger.debug("Getting #{@model[:tableName]} by '#{@id}' id from DB")
 			data = DataFactory::SQLite.get(@model, @id)
 			if data.nil? || data.empty?
-				@errors = {code: 404,message:"Could not find #{@model[:tableName]} by '#{@id}' id"}
-				Model.logError(@logger, @errors.to_s)
-				return false
+				@error = {code: 404,message:"Could not find #{@model[:tableName]} by '#{@id}' id"}
+				logger.debug(@error.to_s)
 			else
 				self.parseOptions(data)
-				return true
 			end
+			return self
 		end
 		def saveToDb
 			data = self.to_h
-			Model.logDebug(@logger, "Saving #{@model[:tableName]} to DB: #{data[:id]}")	
+			logger.debug("Saving #{@model[:tableName]} to DB: #{data[:id]}")	
 			DataFactory::SQLite.create(@model, data)
 			return true
 		end
 	end
 	class BaseList
+		include Logging
 		attr_reader :model
-		attr_accessor :list, :error, :logger
-		def initialize(options = [],logger = nil)
-			@logger = logger
+		attr_accessor :list
+		attr_accessor :error
+		def initialize(options = [])
 			@list = []
 			self.parseOptions(options)
 		end

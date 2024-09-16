@@ -15,10 +15,9 @@
 				</div>
 			</a>
 		</div>
-		<% @errors = @errors || ServerSettings.return_errors($!,$@,ServerSettings::ENV) %>
 		<div class='w3-container w3-margin content-section' id='errors-section'>
-			<h1 id='errors-header'>Error occured</h1>
-			<span class="w3-center" id='errors-details'><%= @errors %></span>
+			<h1 id='errors-header'>Error <%=@resp.code%> occured</h1>
+			<span class="w3-center" id='errors-details'><%= "#{@resp.errorCode} #{@resp.errorMessage}" %></span>
 		</div>
 	</body>
 </html>

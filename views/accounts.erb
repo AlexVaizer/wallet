@@ -1,7 +1,7 @@
 <div class='w3-container w3-margin-bottom content-section' id="accounts-section" >
 	<h1 id="account-header">Accounts:</h1>
 	<ul class="w3-ul w3-card-4 items-list" id="accounts-list">
-		<% @user.accountsList.list.each do |account| %>
+		<% @c.accountsList.list.each do |account| %>
 		    <a href="./?id=<%=account.id%>" id="account-link">
 			    <li class="w3-bar w3-hover-<%=@hover_color%>" id="account-item">
 					<img src="./public/<%=account.currencyCode%>.png" class="w3-bar-item w3-circle w3-hide-small item-image" id="account-image">

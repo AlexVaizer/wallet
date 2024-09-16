@@ -5,7 +5,7 @@ class Token
 	TOKEN_TTL = 7*24*3600 #7 days
 	attr_reader :errorMessage, :exp, :header, :payload, :verifyKey, :signKey, :jwt, :isValid
 	
-	def initialize()
+	def initialize(token = nil)
 		@signKey = ''
 		File.open(SIGN_KEY_PATH) do |file|
 				@signKey = OpenSSL::PKey.read(file)
@@ -14,9 +14,12 @@ class Token
 		File.open(VERIFY_KEY_PATH) do |file|
 				@verifyKey = OpenSSL::PKey.read(file)
 		end
+
 		@payload = nil 
 		@jwt = nil
 		@isValid = false
+		self.parseJwt(token) if token
+		return self
 	end
 
 	def parseJwt(jwt)
