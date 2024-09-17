@@ -19,7 +19,7 @@ module Model
 		attr_accessor *ATTRS
 		def parseOptions(options)
 			@id = options[:id]
-			@password = options[:password] || ''
+			@password = options[:password] || nil
 			@monoApiKey = options[:monoApiKey] || ''
 			@allowedAccountIds = options[:allowedAccountIds].split(',') if options[:allowedAccountIds]
 			@allowedJarIds = options[:allowedJarIds].split(',') if options[:allowedJarIds]
@@ -30,7 +30,7 @@ module Model
 			return true
 		end
 		def parseCryptedPass()
-			return BCrypt::Password.new(@password)
+			return BCrypt::Password.new(@password) if @password
 		end
 		def to_h
 			return result = {

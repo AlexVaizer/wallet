@@ -41,9 +41,9 @@ migration.run!
 	set :bind, ServerSettings::IP
 	set :allow_origin, '*'
 	set :views, Proc.new { File.join(root, "views") }
-	set :show_exceptions, true
+	set :show_exceptions, false 
 	before do 
-		@title = "vzrWallet"
+		@title = "Wallet"
 	end
 
 	get '/login' do 
@@ -55,6 +55,7 @@ migration.run!
 		@title =  "#{@c.requestedAccount.maskedPan} - " + @title if @c.requestedAccount
 		@resp = @c.response
 		status @resp.code
+		cookies.delete(:token) if @resp.code == 401
 		erb @resp.erb
 	end
 
@@ -64,9 +65,9 @@ migration.run!
 			response.set_cookie(:token, :value => @c.token.jwt, :expires => Time.at(@c.token.exp))
 			redirect to('/') 
 		else
-			status @c.response.code
-			@errors = @c.response.errorMessage
-			erb @c.response.erb
+			@resp = @c.response
+			status @resp.code
+			erb @resp.erb
 		end
 	end
 
