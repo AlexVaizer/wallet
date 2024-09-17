@@ -15,7 +15,7 @@ module Model
 				{ name: 'timeUpdated', type: 'TEXT'}
 			]
 		}
-		ATTRS = [:id, :password, :monoApiKey, :allowedAccountIds, :allowedJarIds, :ethAddresses, :ethApiKey,:clientInfo,:accountsList,:requestedAccountId, :requestedAccount, :jarsList]
+		ATTRS = [:id, :password, :monoApiKey, :allowedAccountIds, :allowedJarIds, :ethAddresses, :ethApiKey]
 		attr_accessor *ATTRS
 		def parseOptions(options)
 			@id = options[:id]
@@ -25,12 +25,7 @@ module Model
 			@allowedJarIds = options[:allowedJarIds].split(',') if options[:allowedJarIds]
 			@ethAddresses = options[:ethAddresses].split(',') if options[:ethAddresses]
 			@ethApiKey = options[:ethApiKey] || ''
-			@requestedAccountId = options[:requestedAccountId] || nil
 			@error = nil
-			@accountsList = nil
-			@clientInfo = nil
-			@jarsList = nil
-			@requestedAccount = nil
 			@model = DATA_MODEL
 			return true
 		end
@@ -44,10 +39,7 @@ module Model
 				:monoApiKey => @monoApiKey,
 				:allowedAccountIds => @allowedAccountIds.join(','),
 				:ethAddresses => @ethAddresses.join(','),
-				:ethApiKey => @ethApiKey,
-				:clientInfo => @clientInfo.to_h,
-				:accountsList => @accountsList.to_a,
-				:jarsList => @jarsList.to_a
+				:ethApiKey => @ethApiKey
 			}
 		end
 	end
