@@ -1,6 +1,4 @@
 *.gem
-./ssl/*
-./logs/*
 ./.bundle/*
 jwt_keys
 *.DS_Store
