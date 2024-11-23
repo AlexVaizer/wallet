@@ -49,4 +49,15 @@ module Model
 			@id = userId
 		end
 	end
+	class ClientInfosList < BaseList
+		def parseOptions(options)
+			@list = []
+			options.each {|acc| 
+				model = Model::ClientInfo.new(acc)
+				@list.push(model)
+			}
+			@model = ClientInfo::DATA_MODEL
+			return true
+		end
+	end
 end

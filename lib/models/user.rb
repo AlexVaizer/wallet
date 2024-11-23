@@ -43,4 +43,15 @@ module Model
 			}
 		end
 	end
+	class UsersList < BaseList
+		def parseOptions(options)
+			@list = []
+			options.each {|acc| 
+				model = Model::User.new(acc)
+				@list.push(model)
+			}
+			@model = User::DATA_MODEL
+			return true
+		end
+	end
 end

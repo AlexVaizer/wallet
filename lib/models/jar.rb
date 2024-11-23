@@ -60,23 +60,6 @@ module Model
 			@model = Jar::DATA_MODEL
 			return true
 		end
-		def saveToDb()
-			@list.each { |jar|
-				logger.debug("Saving #{jar.model[:tableName]} #{jar.id} to DB")
-				DataFactory::SQLite.create(jar.model, jar.to_h)
-			}
-		end
-		def getFromDbByUser()
-			logger.debug("Getting All Jars List from DB")
-			data = DataFactory::SQLite.get_all(@model)
-			if data.nil? || data.empty?
-				@errors = {code: 404,message:"Could not find #{@model[:tableName]}"}
-				logger.error(@errors.to_s)
-			else
-				self.parseOptions(data)
-			end
-			return self
-		end
 		def parseMonobankJars(jars,allowedJars)
 			@list = []
 			jars.each { |jar|

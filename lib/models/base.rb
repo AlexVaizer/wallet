@@ -23,6 +23,10 @@ module Model
 			DataFactory::SQLite.create(@model, data)
 			return true
 		end
+		def deleteFromDb
+			logger.debug("Deleting #{@model[:tableName]} by '#{@id}' id from DB")
+			logger.debug("#{DataFactory::SQLite.delete(@model,@id)}")
+		end
 	end
 	class BaseList
 		include Logging
@@ -46,6 +50,18 @@ module Model
 		end
 		def to_a 
 			return @list.map {|elem| elem.to_h}
+		end
+		def getFromDbByUser(userId)
+			logger.debug("Getting All #{@model[:tableName]} List from DB")
+			data = DataFactory::SQLite.get_all(@model)
+			self.parseOptions(data)
+			return self
+		end
+		def saveToDb()
+			@list.each { |elem|
+				logger.debug("Saving #{elem.model[:tableName]} #{elem.id} to DB")
+				DataFactory::SQLite.create(elem.model, elem.to_h)
+			}
 		end
 	end
 end
