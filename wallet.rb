@@ -26,13 +26,15 @@ require File.expand_path('./lib/controllers/migration.rb')
 require File.expand_path('./lib/controllers/base.rb')
 require File.expand_path('./lib/controllers/get_index.rb')
 require File.expand_path('./lib/controllers/login.rb')
+
 #########################################################
 env = ENV['WALLET_ENV'] || 'development'
 env = env.to_sym
 disable :logging
 ServerSettings::ENV = ServerSettings.validate_env(env)
+require File.expand_path('./lib/controllers/api.rb') if ServerSettings::ENV == :development
 ServerSettings.save_pid
-ServerSettings.create_token_keypair
+#ServerSettings.create_token_keypair
 migration = Controller::Migration.new
 migration.run!
 
@@ -70,7 +72,27 @@ migration.run!
 			erb @resp.erb
 		end
 	end
-
+if ServerSettings::ENV == :development
 	get '/public/*' do 
 		send_file(File.join('./public', params['splat'][0]))
 	end
+
+	get '/api/:model/:id' do
+		@c = Controller::API::Get.new(request)
+		status @c.response.status
+		headers @c.response.headers
+		body @c.response.to_json
+	end
+	get '/api/:model' do
+		@c = Controller::API::GetList.new(request)
+		status @c.response.status
+		headers @c.response.headers
+		body @c.response.to_json
+	end
+	delete '/api/:model/:id' do
+		@c = Controller::API::Delete.new(request)
+		status @c.response.status
+		headers @c.response.headers
+		body @c.response.to_json
+	end
+end
