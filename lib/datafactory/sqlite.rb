@@ -19,6 +19,12 @@ module DataFactory
 			return resp
 		end
 
+		def self.delete(model, id)
+			request = "DELETE FROM #{model[:tableName]} "
+			filter = "WHERE #{model[:idField]}=\"#{id}\""
+			re = self.request(request + filter)
+			return re
+		end
 
 		def self.get(model, id)
 			request = "SELECT * FROM #{model[:tableName]} "
