@@ -1,8 +1,8 @@
 module Controller
 	module API
-		class GetList < Controller::API::Base
+		class GetList < Base
 			SUCCESS_CODE = 200
-			CONTROLLER_ERROR_PREFIX = '04'
+			ERROR_PREFIX = "#{Controller::API::CLASS_ERROR_CODES['GetList']}"
 			attr_reader :modelName, :model, :id
 			def initVars
 				logger.debug(@request.path_info)
@@ -21,7 +21,7 @@ module Controller
 				@model = Model.getListBySymbol(@modelName)
 				@model.getFromDbByUser(@user.id)
 				if @model.error
-					self.handleError!(@model.error[:message], "#{CONTROLLER_ERROR_PREFIX}-01-01",@model.error[:code])
+					self.handleError!(@model.error[:message], "#{ERROR_PREFIX}-1",@model.error[:code])
 				else
 					self.prepareSuccessResponse
 				end

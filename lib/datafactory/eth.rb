@@ -1,5 +1,5 @@
 module DataFactory
-	module DataFactory::ETH
+	module ETH
 		require 'bigdecimal'
 		ETH_API_URL = 'https://api.etherscan.io/api/'
 		ETH_TX_URL = 'https://etherscan.io/tx/'

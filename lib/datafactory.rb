@@ -54,3 +54,6 @@ module DataFactory
 		return client_info
 	end
 end
+require File.expand_path(File.join(__dir__,"/datafactory/eth.rb"))
+require File.expand_path(File.join(__dir__,"/datafactory/mono.rb"))
+require File.expand_path(File.join(__dir__,"/datafactory/sqlite.rb"))

@@ -1,5 +1,6 @@
 module Model
 	class Account < Base
+		ROUND_ETH_AMOUNTS_TO = Model::ROUND_ETH_AMOUNTS_TO
 		DATA_MODEL = {
 			tableName: 'accounts',
 			idField: 'id',
@@ -69,7 +70,7 @@ module Model
 		end
 		def parseEtherscanAccount(account = {},last_price = {},userId)
 			in_float = (BigDecimal(account['balance'])/10**18).to_f
-			bal_eth = in_float.round(Model::ROUND_ETH_AMOUNTS_TO)
+			bal_eth = in_float.round(ROUND_ETH_AMOUNTS_TO)
 			bal_usd = bal_eth * last_price['ethusd'].to_f
 			bal_usd = bal_usd.round(1)
 			@currencyCode = 'ETH'

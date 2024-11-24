@@ -1,8 +1,8 @@
 module Controller
 	module API
-		class Get < Controller::API::Base
+		class Get < Base
+			ERROR_PREFIX = "#{Controller::API::CLASS_ERROR_CODES['Get']}"
 			SUCCESS_CODE = 200
-			CONTROLLER_ERROR_PREFIX = '03'
 			attr_reader :modelName, :model, :id
 			def initVars
 				@token = nil
@@ -22,7 +22,7 @@ module Controller
 				@model.id = @id
 				@model.getFromDb
 				if @model.error
-					self.handleError!(@model.error[:message], "#{CONTROLLER_ERROR_PREFIX}-01-01",@model.error[:code])
+					self.handleError!(@model.error[:message], "#{ERROR_PREFIX}-01",@model.error[:code])
 				else
 					self.prepareSuccessResponse
 				end

@@ -1,5 +1,6 @@
 module Controller
 	class Migration
+		MODULE_ERROR_CODES = '00'
 		require 'json'
 		def initialize()
 			@models = [Model::User::DATA_MODEL, Model::ClientInfo::DATA_MODEL, Model::Account::DATA_MODEL, Model::Jar::DATA_MODEL]

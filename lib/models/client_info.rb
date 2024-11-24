@@ -12,6 +12,7 @@ module Model
 				{ name: 'timeUpdated', type: 'TEXT'}
 			]
 		}
+		API_UPDATE_TIMEOUT = Model::API_UPDATE_TIMEOUT
 		ATTRS = [:clientId, :name, :webHookUrl, :permissions, :timeUpdated, :id, :isValid]
 		attr_accessor *ATTRS
 		def parseOptions(options)

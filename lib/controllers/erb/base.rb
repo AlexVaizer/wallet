@@ -1,50 +1,45 @@
 module Controller
-	module API
+	module Erb
+		require 'securerandom'
 		class Response
-			attr_accessor :data, :status, :success, :errorCode, :errorMessage, :headers
+			include Logging
+			attr_accessor :erb, :code, :success, :errorCode, :errorMessage, :cookie
 			def initialize(options = {})
-				@data = options[:data] || ''
-				@status = options[:status] || 500
+				@erb = options[:erb] || :errors
+				@code = options[:code] || 500
 				@success = options[:success] || false
 				@errorCode = nil
 				@errorMessage = nil
 				@cookie = nil
-				@headers = nil
 			end
-			def to_json
+			def to_h
 				response = {
 					:success => @success,
-					:status => @status,
+					:code => @code,
 					:errorCode => @errorCode,
 					:errorMessage => @errorMessage,
-					:data => @data,
-					:headers => @headers
-				}.to_json
+					:erb => @erb,
+					:cookie => @cookie
+				}
 			end
-			end
-			PATH_PREFIX = '/api/'
-			
+		end
 		class Base
-			DEFAULT_ERROR_PREFIX = "#{Controller::API::CLASS_ERROR_CODES['Base']}"
-			DEFAULT_HEADERS = {
-				"Content-Type" => "application/json"
-			}
 			include Logging
-			attr_reader :response, :request, :protected, :token, :user
+			attr_reader :response, :request, :protected, :token
 			def initialize(request)
 				@_objId = SecureRandom.hex(10)
 				logger.progname = "#{self.class}::#{@_objId}"
 				@request = request
 				@response = Response.new()
-				@response.headers = DEFAULT_HEADERS
 				logger.info("Request: #{@request.ip}/#{@request.request_method} #{@request.path_info}")
 				self.initVars
 				self.run! if self.checkAuth
-				logger.info("ResponseCode: #{@response.status}")
+				
+				logger.info("ResponseCode: #{@response.code}, ERB: #{@response.erb}")
 			end
 			def initVars
 				@token = nil
-				@protected = true	
+				@protected = false
 			end
 			def checkAuth
 				if @protected
@@ -53,7 +48,7 @@ module Controller
 						self.parseToken
 					rescue
 						logger.debug("Token parsing failed, redirecting to Login")
-						# TODO @response.erb = :login
+						@response.erb = :login
 						return false
 					end
 				else
@@ -63,9 +58,8 @@ module Controller
 			end
 			def handleError!(message = "Unknown Error",errorCode = '0-0-0', httpCode = 500)
 				logger.error(message)
-				@response.status = httpCode
+				@response.code = httpCode
 				@response.errorMessage = message
-				@response.errorCode = errorCode
 			end
 			def handleError(message = "Unknown Error",errorCode = '0-0-0', httpCode = 500)
 				full_message = "Error #{httpCode} occured. Code=#{errorCode}, Message=#{message}"
@@ -82,11 +76,11 @@ module Controller
 				reqToken = @request.cookies['token']
 				@token = Token.new(reqToken)
 				if !@token.isValid
-					self.handleError("Token Parsing failed", "#{DEFAULT_ERROR_PREFIX}-1", 401)
+					self.handleError("Token Parsing failed", '0-0-1', 401)
 				end
 				@user = Model::User.new({id:@token.payload["userId"]}).getFromDb
 				if @user.error
-					self.handleError("User #{@token.payload["userId"]}} does not exist", "#{DEFAULT_ERROR_PREFIX}-2", 401)
+					self.handleError("User #{@token.payload["userId"]}} does not exist", "0-0-2", 401)
 				end
 			end
 		end

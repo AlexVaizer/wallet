@@ -1,7 +1,13 @@
 module Model
-	TIME_FORMAT = "%d.%m %H:%M:%S"
+	TIME_FORMAT = "%d.%m %H:%M"
 	API_UPDATE_TIMEOUT = 70
 	ROUND_ETH_AMOUNTS_TO = 6
+	require File.expand_path(File.join(__dir__,"/models/base.rb"))
+	require File.expand_path(File.join(__dir__,"/models/user.rb"))
+	require File.expand_path(File.join(__dir__,"/models/account.rb"))
+	require File.expand_path(File.join(__dir__,"/models/client_info.rb"))
+	require File.expand_path(File.join(__dir__,"/models/jar.rb"))
+	require File.expand_path(File.join(__dir__,"/models/statement.rb"))
 	def self.getBySymbol(symbol)
 		case symbol
 		when :user
@@ -29,5 +35,5 @@ module Model
 		else
 			raise StandardError.new "Unknown model"
 		end
-	end
+	end	
 end

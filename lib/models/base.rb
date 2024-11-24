@@ -1,5 +1,6 @@
 module Model
 	class Base
+		TIME_FORMAT = Model::TIME_FORMAT
 		include Logging
 		attr_reader :model
 		attr_accessor :error

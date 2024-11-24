@@ -1,5 +1,5 @@
 module DataFactory
-	module DataFactory::Mono
+	module Mono
 		CLIENT_INFO_PATH = '/personal/client-info'
 		STATEMENTS_PATH = '/personal/statement'
 		API_URL = 'https://api.monobank.ua'

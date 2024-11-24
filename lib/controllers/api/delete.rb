@@ -1,8 +1,8 @@
 module Controller
 	module API
-		class Delete < Controller::API::Base
+		class Delete < Base
+			ERROR_PREFIX = "#{Controller::API::CLASS_ERROR_CODES['Delete']}"
 			SUCCESS_CODE = 200
-			CONTROLLER_ERROR_PREFIX = '05'
 			attr_reader :modelName, :model, :id
 			def initVars
 				logger.debug(@request.path_info)
@@ -23,7 +23,7 @@ module Controller
 				@model.id = @id
 				@model.getFromDb()
 				if @model.error
-					self.handleError!(@model.error[:message], "#{CONTROLLER_ERROR_PREFIX}-01-01",@model.error[:code])
+					self.handleError!(@model.error[:message], "#{ERROR_PREFIX}-1",@model.error[:code])
 				else
 					@model.deleteFromDb()
 					self.prepareSuccessResponse

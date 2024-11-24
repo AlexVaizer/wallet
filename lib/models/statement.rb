@@ -1,7 +1,7 @@
 module Model
 	class Statement < Base
 		ATTRS = [:id, :balance, :time,:comissionRate,:txId,:txIdShort,:txFee,:etherscanUrl,:description,:amount]
-		ROUND_ETH_AMOUNTS_TO = 6
+		ROUND_ETH_AMOUNTS_TO = Model::ROUND_ETH_AMOUNTS_TO
 		attr_accessor(*ATTRS) 
 		def parseOptions(options)
 			@id = options[:id] || ''
@@ -38,8 +38,8 @@ module Model
 			@balance = stat['balance'].to_f/100
 		end
 		def parseEtherscanStatement(stat,address)
-			fee = ((BigDecimal(stat['gasPrice']) * BigDecimal(stat['gasUsed'])) / 10**18).to_f.round(Model::ROUND_ETH_AMOUNTS_TO)
-			amount = (BigDecimal(stat['value']) / 10**18).to_f.round(Model::ROUND_ETH_AMOUNTS_TO)
+			fee = ((BigDecimal(stat['gasPrice']) * BigDecimal(stat['gasUsed'])) / 10**18).to_f.round(ROUND_ETH_AMOUNTS_TO)
+			amount = (BigDecimal(stat['value']) / 10**18).to_f.round(ROUND_ETH_AMOUNTS_TO)
 			if stat['from'].downcase == address.downcase then 
 				symbol =  '-'
 			else 

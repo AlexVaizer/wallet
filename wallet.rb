@@ -11,28 +11,14 @@ require "sinatra/cookies"
 require File.expand_path('./lib/server_settings.rb')
 require File.expand_path('./lib/logging.rb')
 require File.expand_path('./lib/datafactory.rb')
-require File.expand_path('./lib/datafactory/mono.rb')
-require File.expand_path('./lib/datafactory/eth.rb')
-require File.expand_path('./lib/datafactory/sqlite.rb')
 require File.expand_path('./lib/model.rb')
-require File.expand_path('./lib/models/base.rb')
-require File.expand_path('./lib/models/user.rb')
-require File.expand_path('./lib/models/client_info.rb')
-require File.expand_path('./lib/models/account.rb')
-require File.expand_path('./lib/models/statement.rb')
-require File.expand_path('./lib/models/jar.rb')
 require File.expand_path('./lib/token.rb')
-require File.expand_path('./lib/controllers/migration.rb')
-require File.expand_path('./lib/controllers/base.rb')
-require File.expand_path('./lib/controllers/get_index.rb')
-require File.expand_path('./lib/controllers/login.rb')
-
+require File.expand_path('./lib/controller.rb')
 #########################################################
 env = ENV['WALLET_ENV'] || 'development'
 env = env.to_sym
 disable :logging
 ServerSettings::ENV = ServerSettings.validate_env(env)
-require File.expand_path('./lib/controllers/api.rb') if ServerSettings::ENV == :development
 ServerSettings.save_pid
 #ServerSettings.create_token_keypair
 migration = Controller::Migration.new
@@ -53,7 +39,7 @@ migration.run!
 	end
 
 	get '/' do
-		@c = Controller::GetIndex.new(request)
+		@c = Controller::Erb::GetIndex.new(request)
 		@title =  "#{@c.requestedAccount.maskedPan} - " + @title if @c.requestedAccount
 		@resp = @c.response
 		status @resp.code
@@ -62,7 +48,7 @@ migration.run!
 	end
 
 	post '/login' do 
-		@c = Controller::Login.new(request)
+		@c = Controller::Erb::Login.new(request)
 		if @c.response.success 
 			response.set_cookie(:token, :value => @c.token.jwt, :expires => Time.at(@c.token.exp))
 			redirect to('/') 
@@ -91,6 +77,12 @@ if ServerSettings::ENV == :development
 	end
 	delete '/api/:model/:id' do
 		@c = Controller::API::Delete.new(request)
+		status @c.response.status
+		headers @c.response.headers
+		body @c.response.to_json
+	end
+	patch '/api/:model/:id' do
+		@c = Controller::API::Patch.new(request)
 		status @c.response.status
 		headers @c.response.headers
 		body @c.response.to_json

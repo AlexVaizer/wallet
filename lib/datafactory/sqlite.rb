@@ -1,5 +1,5 @@
 module DataFactory
-	module DataFactory::SQLite
+	module SQLite
 		require 'sqlite3'
 		DB_PATH = ENV["WALLET_DB_PATH"] || '../db.sqlite'
 		def self.prepare_migration_request(model)
