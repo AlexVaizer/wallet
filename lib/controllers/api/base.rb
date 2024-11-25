@@ -25,7 +25,8 @@ module Controller
 			PATH_PREFIX = '/api/'
 			
 		class Base
-			DEFAULT_ERROR_PREFIX = "#{Controller::API::CLASS_ERROR_CODES['Base']}"
+			@@ERROR_PREFIX = "#{Controller::API::CLASS_ERROR_CODES['Base']}"
+			@@SUCCESS_CODE = "200"
 			DEFAULT_HEADERS = {
 				"Content-Type" => "application/json"
 			}
@@ -40,11 +41,18 @@ module Controller
 				logger.info("Request: #{@request.ip}/#{@request.request_method} #{@request.path_info}")
 				self.initVars
 				self.run! if self.checkAuth
-				logger.info("ResponseCode: #{@response.status}")
+				#logger.info("ResponseCode: #{@response.status}")
+			end
+			def parsePath
+				path = @request.path_info.gsub(API::PATH_PREFIX, "").split("/")
+				@modelName = path[0].to_sym
+				@id = path[1]
+				#logger.debug("model: #{@modelName}, id: #{@id}")
 			end
 			def initVars
+				self.parsePath
 				@token = nil
-				@protected = true	
+				@protected = true
 			end
 			def checkAuth
 				if @protected
@@ -53,7 +61,6 @@ module Controller
 						self.parseToken
 					rescue
 						logger.debug("Token parsing failed, redirecting to Login")
-						# TODO @response.erb = :login
 						return false
 					end
 				else
@@ -62,7 +69,14 @@ module Controller
 				return true
 			end
 			def handleError!(message = "Unknown Error",errorCode = '0-0-0', httpCode = 500)
-				logger.error(message)
+				full_message = "Error #{httpCode} occured. Code=#{errorCode}, Message=#{message}"
+				logger.error full_message
+				begin
+					raise StandardError.new(full_message)
+				rescue => e 
+					logger.debug("Traceback: #{e.backtrace.take(5)}")
+					#raise e
+				end
 				@response.status = httpCode
 				@response.errorMessage = message
 				@response.errorCode = errorCode
@@ -82,11 +96,67 @@ module Controller
 				reqToken = @request.cookies['token']
 				@token = Token.new(reqToken)
 				if !@token.isValid
-					self.handleError("Token Parsing failed", "#{DEFAULT_ERROR_PREFIX}-1", 401)
+					self.handleError("Token Parsing failed", "#{@@ERROR_PREFIX}-5", 401)
 				end
 				@user = Model::User.new({id:@token.payload["userId"]}).getFromDb
 				if @user.error
-					self.handleError("User #{@token.payload["userId"]}} does not exist", "#{DEFAULT_ERROR_PREFIX}-2", 401)
+					self.handleError("User #{@token.payload["userId"]}} does not exist", "#{@@ERROR_PREFIX}-2", 401)
+				end
+			end
+			def getBySymbol
+				begin
+					@model = Model.getBySymbol(@modelName)
+				rescue
+					self.handleError!("Unknown Model", "#{@@ERROR_PREFIX}-1",404)
+					return nil
+				end
+			end
+			def getListBySymbol
+				begin
+					@model = Model.getListBySymbol(@modelName)
+				rescue
+					self.handleError!("Unknown Model", "#{@@ERROR_PREFIX}-2",404)
+					return nil
+				end
+			end
+			def getFromDb
+				@model.getFromDb
+				if @model.error
+					self.handleError!(@model.error[:message], "#{@@ERROR_PREFIX}-3",@model.error[:code])
+				else
+					self.prepareSuccessResponse
+				end
+			end
+			def deleteFromDb
+				@model.deleteFromDb
+				if @model.error
+					self.handleError!(@model.error[:message], "#{@@ERROR_PREFIX}-3",@model.error[:code])
+				else
+					self.prepareSuccessResponse
+				end
+			end
+			def prepareSuccessResponse
+				@response.data = @model.to_h
+				@response.status = @@SUCCESS_CODE
+			end
+			def getListFromDbByUser
+				@model.getFromDbByUser(@user.id)
+				if @model.error
+					self.handleError!(@model.error[:message], "#{@@ERROR_PREFIX}-4",@model.error[:code])
+				else
+					self.prepareSuccessResponse
+				end
+			end
+			def run!
+				begin
+					self.getBySymbol
+					if @model
+						@model.id = @id
+						self.getFromDb
+					end 
+				rescue => e 
+					@response.data = {}
+					self.handleError!("Internal Error: #{e.message}", "#{@@ERROR_PREFIX}-0",500)
 				end
 			end
 		end

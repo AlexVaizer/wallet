@@ -1,22 +1,18 @@
 module Controller
 	module API
 		class Patch < Base
-			SUCCESS_CODE = 200
-			ERROR_PREFIX = Controller::API::CLASS_ERROR_CODES['Patch']
+			@@SUCCESS_CODE = 200
+			@@ERROR_PREFIX = Controller::API::CLASS_ERROR_CODES['Patch']
 			attr_reader :modelName, :model, :id
 			def initVars
 				@token = nil
 				@protected = true
 				@user = nil
-				@modelName = @request.path_info.gsub(API::PATH_PREFIX, "").split("/")[0]
-				@modelName = @modelName.to_sym
-				@id = @request.path_info.gsub(API::PATH_PREFIX, "").split("/")[1]
-				logger.debug("model name = #{@modelName}, id = #{@id}")
+				self.parsePath
 			end
 			def prepareSuccessResponse
 				@response.data = @model.to_h
-				#@response.data = @requestPayload
-				@response.status = SUCCESS_CODE
+				@response.status = @@SUCCESS_CODE
 			end
 			def parsePayload
 				begin
@@ -26,7 +22,7 @@ module Controller
 					@requestPayload = JSON.parse(body)#, symbolize_names: true)
 					return true
 				rescue => e 
-					self.handleError("Request Validation Error", "#{ERROR_PREFIX}-1",400)
+					self.handleError("Request Validation Error", "#{@@ERROR_PREFIX}-1",400)
 					return false
 				end
 			end
@@ -35,17 +31,17 @@ module Controller
 					@model = Model.getBySymbol(@modelName)
 					@model.id = @id
 					@model.getFromDb
-					return self.handleError!(@model.error[:message], "#{ERROR_PREFIX}-2",@model.error[:code]) if @model.error
+					return self.handleError!(@model.error[:message], "#{@@ERROR_PREFIX}-2",@model.error[:code]) if @model.error
 					@requestPayload.each { |k,v|
 						if @model.respond_to?("#{k}=")
 							@model.send("#{k}=",v) 
 						else
 							@response.data = {field: k, error: 'Unknown field'}
-							return self.handleError!("Request Validation Error", "#{ERROR_PREFIX}-3",400)
+							return self.handleError!("Request Validation Error", "#{@@ERROR_PREFIX}-3",400)
 						end
 					}
 					@model.saveToDb
-					return self.handleError!(@model.error[:message], "#{ERROR_PREFIX}-4",@model.error[:code]) if @model.error
+					return self.handleError!(@model.error[:message], "#{@@ERROR_PREFIX}-4",@model.error[:code]) if @model.error
 					self.prepareSuccessResponse
 				end
 			end

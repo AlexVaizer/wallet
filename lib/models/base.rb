@@ -7,7 +7,7 @@ module Model
 		def initialize(options = {})
 			self.parseOptions(options)
 		end
-		def getFromDb()
+		def getFromDb
 			logger.debug("Getting #{@model[:tableName]} by '#{@id}' id from DB")
 			data = DataFactory::SQLite.get(@model, @id)
 			if data.nil? || data.empty?
@@ -53,12 +53,18 @@ module Model
 			return @list.map {|elem| elem.to_h}
 		end
 		def getFromDbByUser(userId)
+			logger.debug("Getting All #{@model[:tableName]} List from DB for user #{userId}")
+			data = DataFactory::SQLite.get_all(@model)
+			self.parseOptions(data)
+			return self
+		end
+		def getFromDb
 			logger.debug("Getting All #{@model[:tableName]} List from DB")
 			data = DataFactory::SQLite.get_all(@model)
 			self.parseOptions(data)
 			return self
 		end
-		def saveToDb()
+		def saveToDb
 			@list.each { |elem|
 				logger.debug("Saving #{elem.model[:tableName]} #{elem.id} to DB")
 				DataFactory::SQLite.create(elem.model, elem.to_h)
