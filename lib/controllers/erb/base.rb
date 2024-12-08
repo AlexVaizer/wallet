@@ -26,12 +26,12 @@ module Controller
 		class Base
 			include Logging
 			attr_reader :response, :request, :protected, :token
-			def initialize(request)
+			def initialize(request, options = {})
 				@_objId = SecureRandom.hex(10)
 				logger.progname = "#{self.class}::#{@_objId}"
 				@request = request
 				@response = Response.new()
-				logger.info("Request: #{@request.ip}/#{@request.request_method} #{@request.path_info}")
+				logger.info("Request: #{@request.ip.inspect} => #{@request.request_method.inspect} #{@request.path_info.inspect} with params: #{@request.params.inspect}")
 				self.initVars
 				self.run! if self.checkAuth
 				

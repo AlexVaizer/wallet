@@ -204,16 +204,16 @@ module Model
 			# 	}
 			# }}
 			# logger.debug("#{self.class} DB Command: #{command}")
-			logger.debug("#{self.class} BulkWriting #{@list.length} #{model.tableName} from DB with ")
+			logger.info("#{self.class} BulkWriting #{@list.length} #{model.tableName} to DB")
 			begin
-				client = self.mongoClient
-				collection = client[model.tableName.to_sym]
+				# client = self.mongoClient
+				# collection = client[model.tableName.to_sym]
 				@list.map { |e| e.saveToDb }
 				#data = collection.bulk_write(command,ordered:false)
 				#self.parseOptions!(data.to_a)
-				client.close
+				# client.close
 			rescue => e
-				client.close
+				# client.close
 				raise e
 			end
 			return self
