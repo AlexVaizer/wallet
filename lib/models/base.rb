@@ -196,21 +196,21 @@ module Model
 			return self
 		end
 		def saveToDb
-			command = @list.map { |elem| 
-				{'replace_one' => {
-					'filter' => {model.idField => elem._id},
-					'replacement' => elem.to_bson,
-					'upsert' => true
-				}
-			}}
-			logger.debug("#{self.class} DB Command: #{command}")
+			# command = @list.map { |elem| 
+			# 	{'replace_one' => {
+			# 		'filter' => {model.idField => elem._id},
+			# 		'replacement' => elem.to_bson,
+			# 		'upsert' => true
+			# 	}
+			# }}
+			# logger.debug("#{self.class} DB Command: #{command}")
 			logger.debug("#{self.class} BulkWriting #{@list.length} #{model.tableName} from DB with ")
 			begin
 				client = self.mongoClient
 				collection = client[model.tableName.to_sym]
-				request = 
-				data = collection.bulk_write(command,ordered:false)
-				self.parseOptions!(data.to_a)
+				@list.map { |e| e.saveToDb }
+				#data = collection.bulk_write(command,ordered:false)
+				#self.parseOptions!(data.to_a)
 				client.close
 			rescue => e
 				client.close
