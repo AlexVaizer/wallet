@@ -74,7 +74,8 @@ module Controller
 				begin
 					raise StandardError.new(full_message)
 				rescue => e 
-					logger.debug("Traceback: #{e.backtrace.take(5)}")
+					logger.debug(self.inspect)
+					logger.debug("Traceback: #{e.backtrace.take(8)}")
 					#raise e
 				end
 				@response.status = httpCode
@@ -87,7 +88,8 @@ module Controller
 					raise StandardError.new(full_message)
 				rescue => e 
 					self.handleError!(full_message , errorCode, httpCode)
-					logger.debug("Traceback: #{e.backtrace.take(5)}")
+					logger.debug(self.inspect)
+					logger.debug("Traceback: #{e.backtrace.take(8)}")
 					raise e
 				end
 			end
@@ -138,9 +140,10 @@ module Controller
 			def prepareSuccessResponse
 				@response.data = @model.to_h
 				@response.status = @@SUCCESS_CODE
+				@response.success = true
 			end
 			def getListFromDbByUser
-				@model.getFromDbByUser(@user.id)
+				@model.getFromDbByUser(@user._id)
 				if @model.error
 					self.handleError!(@model.error[:message], "#{@@ERROR_PREFIX}-4",@model.error[:code])
 				else
@@ -151,7 +154,7 @@ module Controller
 				begin
 					self.getBySymbol
 					if @model
-						@model.id = @id
+						@model._id = @id
 						self.getFromDb
 					end 
 				rescue => e 

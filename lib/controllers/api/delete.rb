@@ -15,7 +15,7 @@ module Controller
 				begin
 					self.getBySymbol
 					if @model
-						@model.id = @id
+						@model._id = @id
 						self.deleteFromDb
 					end 
 					@response.data = {}

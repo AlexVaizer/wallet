@@ -20,7 +20,7 @@
 			acc_display[:row1] = account.maskedPan
 			acc_display[:row2] = "#{account.balance} #{account.currencyCode}"
 		end%>
-		<a href="./?id=<%=account.id%>" id="bar-account-link">
+		<a href="./?id=<%=account._id%>" id="bar-account-link">
 			<div class='w3-bar-item w3-hover-<%=color%> w3-round-large' id='bar-item'>
 				<span id="bar-item-row1"><%= acc_display[:row1] %></span> <br>
 				<span id="bar-item-row2"><%= acc_display[:row2] %></span>

@@ -40,6 +40,7 @@ module Controller
 			def initVars
 				@token = nil
 				@protected = false
+				@response = Response.new()
 			end
 			def checkAuth
 				if @protected
@@ -67,7 +68,7 @@ module Controller
 					raise StandardError.new(full_message)
 				rescue => e 
 					self.handleError!(full_message , errorCode, httpCode)
-					logger.debug("Traceback: #{e.backtrace.take(5)}")
+					logger.debug("Traceback: #{e.backtrace.take(7)}")
 					raise e
 				end
 			end
@@ -78,7 +79,7 @@ module Controller
 				if !@token.isValid
 					self.handleError("Token Parsing failed", '0-0-1', 401)
 				end
-				@user = Model::User.new({id:@token.payload["userId"]}).getFromDb
+				@user = Model::User.new({_id:@token.payload["userId"]}).getFromDb
 				if @user.error
 					self.handleError("User #{@token.payload["userId"]}} does not exist", "0-0-2", 401)
 				end

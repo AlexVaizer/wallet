@@ -2,10 +2,10 @@ module Model
 	class User < Base
 		require 'bcrypt'
 		DATA_MODEL = {
-			tableName: 'user',
-			idField: 'id',
+			tableName: 'users',
+			idField: '_id',
 			fields: [ 
-				{ name: 'id', type: 'TEXT'},
+				{ name: '_id', type: 'TEXT'},
 				{ name: 'password', type: 'TEXT'},
 				{ name: 'monoApiKey', type: 'TEXT'},
 				{ name: 'allowedAccountIds', type: 'TEXT'},
@@ -15,42 +15,34 @@ module Model
 				{ name: 'timeUpdated', type: 'TEXT'}
 			]
 		}
-		ATTRS = [:id, :password, :monoApiKey, :allowedAccountIds, :allowedJarIds, :ethAddresses, :ethApiKey]
-		attr_accessor *ATTRS
-		def parseOptions(options)
-			@id = options[:id]
-			@password = options[:password] || nil
-			@monoApiKey = options[:monoApiKey] || ''
-			@allowedAccountIds = options[:allowedAccountIds].split(',') if options[:allowedAccountIds]
-			@allowedJarIds = options[:allowedJarIds].split(',') if options[:allowedJarIds]
-			@ethAddresses = options[:ethAddresses].split(',') if options[:ethAddresses]
-			@ethApiKey = options[:ethApiKey] || ''
-			@error = nil
-			@model = DATA_MODEL
-			return true
+		fieldSet = DATA_MODEL[:fields].map { |e| Field.new(name: e[:name], type: e[:type]) }
+		DATA_MODEL_OBJ = Model::DataModel.new(tableName: DATA_MODEL[:tableName], idField: DATA_MODEL[:idField], fieldSet: fieldSet)
+		attr_accessor *fieldSet.map { |e| e.name }
+		def model
+			DATA_MODEL_OBJ
+		end
+		def mongoClient
+			return client = Mongo::Client.new(Model::MONGO_STRING, database: 'wallet-dev')
 		end
 		def parseCryptedPass()
 			return BCrypt::Password.new(@password) if @password
 		end
-		def to_h
-			return result = {
-				:id => @id,
-				:password => @password,
-				:monoApiKey => @monoApiKey,
-				:allowedAccountIds => @allowedAccountIds.join(','),
-				:ethAddresses => @ethAddresses.join(','),
-				:ethApiKey => @ethApiKey
-			}
-		end
 	end
 	class UsersList < BaseList
-		def parseOptions(options)
+		fieldSet = User::DATA_MODEL[:fields].map { |e| Field.new(name: e[:name], type: e[:type]) }
+		DATA_MODEL_OBJ = Model::DataModel.new(tableName: User::DATA_MODEL[:tableName], idField: User::DATA_MODEL[:idField], fieldSet: fieldSet)
+		def model
+			DATA_MODEL_OBJ
+		end
+		def mongoClient
+			return client = Mongo::Client.new(Model::MONGO_STRING, database: 'wallet-dev')
+		end
+		def parseOptions!(options)
 			@list = []
 			options.each {|acc| 
 				model = Model::User.new(acc)
 				@list.push(model)
 			}
-			@model = User::DATA_MODEL
 			return true
 		end
 	end

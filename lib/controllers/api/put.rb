@@ -1,8 +1,8 @@
 module Controller
 	module API
-		class Patch < Base
+		class Put < Base
 			@@SUCCESS_CODE = 200
-			@@ERROR_PREFIX = Controller::API::CLASS_ERROR_CODES['Patch']
+			@@ERROR_PREFIX = Controller::API::CLASS_ERROR_CODES['Put']
 			attr_reader :modelName, :model, :id
 			def initVars
 				@token = nil

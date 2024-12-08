@@ -2,73 +2,67 @@ module Model
 	class Jar < Base
 		DATA_MODEL = {
 			tableName: 'jars',
-			idField: 'id',
+			idField: '_id',
 			fields: [ 
-				{ name: 'id', type: 'TEXT'},
-				{ name: 'sendId', type: 'TEXT'},
-				{ name: 'title', type: 'TEXT'},
-				{ name: 'description', type: 'TEXT'},
-				{ name: 'currencyCode', type: 'TEXT'},
-				{ name: 'balance', type: 'NUMERIC'},
-				{ name: 'goal', type: 'NUMERIC'},
-				{ name: 'timeUpdated', type: 'TEXT'}
+				{ name: '_id', type: :text},
+				{ name: 'sendId', type: :text},
+				{ name: 'title', type: :text},
+				{ name: 'description', type: :text},
+				{ name: 'currencyCode', type: :text},
+				{ name: 'balance', type: :integer},
+				{ name: 'goal', type: :integer},
+				{ name: 'userId', type: :text},
+				{ name: 'timeUpdated', type: :text}
 			]
 		}
-		PRINTABLE_ATTRS = [:id, :sendId, :title, :description, :currencyCode, :balance, :goal]
-		attr_accessor(*PRINTABLE_ATTRS) 
-		def parseOptions(options)
-			@id = options[:id] 
-			@sendId = options[:sendId]
-			@title = options[:title]
-			@description = options[:description] 
-			@currencyCode = options[:currencyCode]
-			@balance = options[:balance] 
-			@goal = options[:goal]
-			@error = nil
-			@model = DATA_MODEL
-			return true
+		fieldSet = DATA_MODEL[:fields].map { |e| Field.new(name: e[:name], type: e[:type]) }
+		DATA_MODEL_OBJ = Model::DataModel.new(tableName: DATA_MODEL[:tableName], idField: DATA_MODEL[:idField], fieldSet: fieldSet)
+		attr_accessor *fieldSet.map { |e| e.name }
+		def model
+			DATA_MODEL_OBJ
 		end
-		def parseMonobankJar(options)
-			@id = options[:id] 
+		def mongoClient
+			return client = Mongo::Client.new(Model::MONGO_STRING, database: 'wallet-dev')
+		end
+		def parseMonobankJar(options,userId)
+			@_id = options[:id] 
 			@sendId = options[:sendId]
 			@title = options[:title]
 			@description = options[:description] 
 			@currencyCode = DataFactory::CURRENCIES[options[:currencyCode].to_s]
 			@balance = options[:balance].to_f/100 
 			@goal = options[:goal].to_f/100
+			@userId = userId
 			return true
-		end
-		def to_h
-			return result = {
-				:id => @id,
-				:sendId => @sendId,
-				:title => @title,
-				:description => @description,
-				:currencyCode => @currencyCode,
-				:balance => @balance,
-				:goal => @goal
-			}
 		end
 	end
 	class JarsList < BaseList
-		def parseOptions(options)
+		fieldSet = Jar::DATA_MODEL[:fields].map { |e| Field.new(name: e[:name], type: e[:type]) }
+		DATA_MODEL_OBJ = Model::DataModel.new(tableName: Jar::DATA_MODEL[:tableName], idField: Jar::DATA_MODEL[:idField], fieldSet: fieldSet)
+		attr_accessor *fieldSet.map { |e| e.name }
+		def model
+			DATA_MODEL_OBJ
+		end
+		def mongoClient
+			return client = Mongo::Client.new(Model::MONGO_STRING, database: 'wallet-dev')
+		end
+		def parseOptions!(options)
 			@list = []
 			options.each {|acc| 
 				model = Model::Jar.new(acc)
 				@list.push(model)
 			}
-			@model = Jar::DATA_MODEL
 			return true
 		end
-		def parseMonobankJars(jars,allowedJars)
+		def parseMonobankJars(jars,allowedJars,userId)
 			@list = []
 			jars.each { |jar|
 				jar = jar.transform_keys(&:to_sym)
 				obj = Model::Jar.new()
-				obj.parseMonobankJar(jar)
+				obj.parseMonobankJar(jar,userId)
 				@list.push(obj)
 			}
-			logger.debug("Filtering retrieved jars by: #{allowedJars}")
+			logger.debug("#{self.class} Filtering retrieved jars by: #{allowedJars}")
 			self.filterByIdsList(allowedJars)
 		end
 	end

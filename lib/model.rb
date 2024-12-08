@@ -8,6 +8,9 @@ module Model
 	require File.expand_path(File.join(__dir__,"/models/client_info.rb"))
 	require File.expand_path(File.join(__dir__,"/models/jar.rb"))
 	require File.expand_path(File.join(__dir__,"/models/statement.rb"))
+	require File.expand_path(File.join(__dir__,"/models/zm_account.rb"))
+	#require File.expand_path(File.join(__dir__,"/models/zm_tx.rb"))
+	
 	def self.getBySymbol(symbol)
 		case symbol
 		when :user

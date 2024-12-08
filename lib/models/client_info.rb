@@ -1,10 +1,10 @@
 module Model
 	class ClientInfo < Base
 		DATA_MODEL = {
-			tableName: 'clients',
-			idField: 'id',
+			tableName: 'clientInfos',
+			idField: '_id',
 			fields:[
-				{ name: 'id', type: 'TEXT'},
+				{ name: '_id', type: 'TEXT'},
 				{ name: 'clientId', type: 'TEXT'},
 				{ name: 'name', type: 'TEXT'},
 				{ name: 'webHookUrl', type: 'TEXT'},
@@ -13,32 +13,17 @@ module Model
 			]
 		}
 		API_UPDATE_TIMEOUT = Model::API_UPDATE_TIMEOUT
-		ATTRS = [:clientId, :name, :webHookUrl, :permissions, :timeUpdated, :id, :isValid]
-		attr_accessor *ATTRS
-		def parseOptions(options)
-			@clientId = options[:clientId] || ''
-			@name = options[:name] || ''
-			@webHookUrl = options[:webHookUrl] || ''
-			@permissions = options[:permissions] || ''
-			@isValid = false
-			if options[:timeUpdated]
-				@timeUpdated = Time.parse(options[:timeUpdated])
-				@isValid = @timeUpdated > (Time.now - Model::API_UPDATE_TIMEOUT)
-			end
-			@id = options[:id]
-			@error = nil
-			@model = DATA_MODEL
-			return true
+		fieldSet = DATA_MODEL[:fields].map { |e| Field.new(name: e[:name], type: e[:type]) }
+		DATA_MODEL_OBJ = Model::DataModel.new(tableName: DATA_MODEL[:tableName], idField: DATA_MODEL[:idField], fieldSet: fieldSet)
+		attr_accessor *fieldSet.map { |e| e.name }
+		def model
+			DATA_MODEL_OBJ
 		end
-		def to_h
-			return result = {
-				:clientId => @clientId,
-				:name => @name,
-				:webHookUrl => @webHookUrl,
-				:permissions => @permissions,
-				:timeUpdated => @timeUpdated.to_s,
-				:id => @id
-			}
+		def mongoClient
+			return client = Mongo::Client.new(Model::MONGO_STRING, database: 'wallet-dev')
+		end
+		def	isValid
+			return @timeUpdated > (Time.now - API_UPDATE_TIMEOUT)
 		end
 		def parseMonobankClientInfo(clientInfo,userId)
 			@clientId = clientInfo['clientId']
@@ -46,18 +31,25 @@ module Model
 			@webHookUrl = clientInfo['webHookUrl']
 			@permissions = clientInfo['permissions']
 			@timeUpdated = Time.now
-			@isValid = true
-			@id = userId
+			@_id = userId
 		end
 	end
 	class ClientInfosList < BaseList
-		def parseOptions(options)
+		fieldSet = ClientInfo::DATA_MODEL[:fields].map { |e| Field.new(name: e[:name], type: e[:type]) }
+		DATA_MODEL_OBJ = Model::DataModel.new(tableName: ClientInfo::DATA_MODEL[:tableName], idField: ClientInfo::DATA_MODEL[:idField], fieldSet: fieldSet)
+		def mongoClient
+			return client = Mongo::Client.new(Model::MONGO_STRING, database: 'wallet-dev')
+		end
+		def model
+			DATA_MODEL_OBJ
+		end
+		def parseOptions!(options)
+			@model = DATA_MODEL_OBJ
 			@list = []
 			options.each {|acc| 
 				model = Model::ClientInfo.new(acc)
 				@list.push(model)
 			}
-			@model = ClientInfo::DATA_MODEL
 			return true
 		end
 	end

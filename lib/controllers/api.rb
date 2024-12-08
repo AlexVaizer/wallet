@@ -7,7 +7,8 @@ module Controller
 			'GetList' => "#{MODULE_ERROR_CODE}-02",
 			'Delete' => "#{MODULE_ERROR_CODE}-03",
 			'Patch' => "#{MODULE_ERROR_CODE}-04",
-			'Post' => "#{MODULE_ERROR_CODE}-05"
+			'Put' => "#{MODULE_ERROR_CODE}-05",
+			'Post' => "#{MODULE_ERROR_CODE}-06"
 		}
 		require File.expand_path(File.join(__dir__,"/api/base.rb"))
 		require File.expand_path(File.join(__dir__,"/api/get.rb"))
