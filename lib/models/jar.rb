@@ -12,7 +12,8 @@ module Model
 				{ name: 'balance', type: :integer},
 				{ name: 'goal', type: :integer},
 				{ name: 'userId', type: :text},
-				{ name: 'timeUpdated', type: :text}
+				{ name: 'timeUpdated', type: :time},
+				{ name: 'timeCreated', type: :time}
 			]
 		}
 		fieldSet = DATA_MODEL[:fields].map { |e| Field.new(name: e[:name], type: e[:type]) }

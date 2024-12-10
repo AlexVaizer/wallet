@@ -15,5 +15,7 @@ module Controller
 		require File.expand_path(File.join(__dir__,"/api/get_list.rb"))
 		require File.expand_path(File.join(__dir__,"/api/delete.rb"))
 		require File.expand_path(File.join(__dir__,"/api/patch.rb"))
+		require File.expand_path(File.join(__dir__,"/api/put.rb"))
+		require File.expand_path(File.join(__dir__,"/api/post.rb"))
 	end
 end

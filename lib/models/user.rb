@@ -5,14 +5,15 @@ module Model
 			tableName: 'users',
 			idField: '_id',
 			fields: [ 
-				{ name: '_id', type: 'TEXT'},
-				{ name: 'password', type: 'TEXT'},
-				{ name: 'monoApiKey', type: 'TEXT'},
-				{ name: 'allowedAccountIds', type: 'TEXT'},
-				{ name: 'allowedJarIds', type: 'TEXT'},
-				{ name: 'ethAddresses', type: 'TEXT'},
-				{ name: 'ethApiKey', type: 'TEXT'},
-				{ name: 'timeUpdated', type: 'TEXT'}
+				{ name: '_id', type: :text},
+				{ name: 'password', type: :text},
+				{ name: 'monoApiKey', type: :text},
+				{ name: 'allowedAccountIds', type: :text},
+				{ name: 'allowedJarIds', type: :text},
+				{ name: 'ethAddresses', type: :text},
+				{ name: 'ethApiKey', type: :text},
+				{ name: 'timeUpdated', type: :time},
+				{ name: 'timeCreated', type: :time}
 			]
 		}
 		fieldSet = DATA_MODEL[:fields].map { |e| Field.new(name: e[:name], type: e[:type]) }

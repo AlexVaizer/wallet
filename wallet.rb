@@ -88,4 +88,16 @@ if [:development,:test].include?(ServerSettings::ENV)
 		headers @c.response.headers
 		body @c.response.to_json
 	end
+	put '/api/:model/:id' do
+		@c = Controller::API::Put.new(request)
+		status @c.response.status
+		headers @c.response.headers
+		body @c.response.to_json
+	end
+	post '/api/:model' do
+		@c = Controller::API::Post.new(request)
+		status @c.response.status
+		headers @c.response.headers
+		body @c.response.to_json
+	end
 end

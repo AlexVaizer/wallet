@@ -26,11 +26,15 @@ module Controller
 			def prepareSuccessResponse
 				@response.data = @model.to_a
 				@response.status = @@SUCCESS_CODE
+				@response.success = true
+			end
+			def run
+				self.getBySymbol
+				self.getFromDb if @model
 			end
 			def run!
 				begin
-					self.getBySymbol
-					self.getFromDb if @model
+					self.run
 				rescue => e 
 					@response.data = {}
 					self.handleError!("Internal Error", "#{@@ERROR_PREFIX}-0",500)

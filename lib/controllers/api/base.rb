@@ -38,16 +38,15 @@ module Controller
 				@request = request
 				@response = Response.new()
 				@response.headers = DEFAULT_HEADERS
-				logger.info("Request: #{@request.ip}/#{@request.request_method} #{@request.path_info}")
+				logger.info("Request: #{@request.request_method} #{@request.ip}#{@request.path_info}")
 				self.initVars
 				self.run! if self.checkAuth
-				#logger.info("ResponseCode: #{@response.status}")
+				logger.info("Response Code: #{@response.status}. Success: #{@response.status}")
 			end
 			def parsePath
 				path = @request.path_info.gsub(API::PATH_PREFIX, "").split("/")
 				@modelName = path[0].to_sym
 				@id = path[1]
-				#logger.debug("model: #{@modelName}, id: #{@id}")
 			end
 			def initVars
 				self.parsePath
@@ -74,9 +73,9 @@ module Controller
 				begin
 					raise StandardError.new(full_message)
 				rescue => e 
-					logger.debug(self.inspect)
+					#logger.debug(self.inspect)
 					logger.debug("Traceback: #{e.backtrace.take(8)}")
-					#raise e
+					raise e
 				end
 				@response.status = httpCode
 				@response.errorMessage = message
@@ -88,7 +87,7 @@ module Controller
 					raise StandardError.new(full_message)
 				rescue => e 
 					self.handleError!(full_message , errorCode, httpCode)
-					logger.debug(self.inspect)
+					#logger.debug(self.inspect)
 					logger.debug("Traceback: #{e.backtrace.take(8)}")
 					raise e
 				end
@@ -100,8 +99,9 @@ module Controller
 				if !@token.isValid
 					self.handleError("Token Parsing failed", "#{@@ERROR_PREFIX}-5", 401)
 				end
-				@user = Model::User.new({id:@token.payload["userId"]}).getFromDb
+				@user = Model::User.new({_id:@token.payload["userId"]}).getFromDb
 				if @user.error
+					logger.debug(@user.error)
 					self.handleError("User #{@token.payload["userId"]}} does not exist", "#{@@ERROR_PREFIX}-2", 401)
 				end
 			end
@@ -150,13 +150,16 @@ module Controller
 					self.prepareSuccessResponse
 				end
 			end
+			def run
+				self.getBySymbol
+				if @model
+					@model._id = @id
+					self.getFromDb
+				end 
+			end
 			def run!
-				begin
-					self.getBySymbol
-					if @model
-						@model._id = @id
-						self.getFromDb
-					end 
+				begin 
+					run
 				rescue => e 
 					@response.data = {}
 					self.handleError!("Internal Error: #{e.message}", "#{@@ERROR_PREFIX}-0",500)

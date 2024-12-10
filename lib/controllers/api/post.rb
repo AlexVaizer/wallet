@@ -1,6 +1,6 @@
 module Controller
 	module API
-		class Put < Patch
+		class Post < Put
 			@@ERROR_PREFIX = Controller::API::CLASS_ERROR_CODES['Put']
 			def initVars
 				@token = nil
@@ -10,13 +10,10 @@ module Controller
 			end
 			def run
 				if self.parsePayload
-					return self.handleError!("ID change not permitted", "#{@@ERROR_PREFIX}-2",400) if @requestPayload['_id'] != @id
 					@model = Model.getBySymbol(@modelName)
-					@model._id = @id
-					@model.getFromDb
 					return self.handleError!(@model.error[:message], "#{@@ERROR_PREFIX}-3",@model.error[:code]) if @model.error
 					@model.parseOptions(@requestPayload)
-					@model.saveToDb
+					@model.insertToDb
 					return self.handleError!(@model.error[:message], "#{@@ERROR_PREFIX}-4",@model.error[:code]) if @model.error
 					self.prepareSuccessResponse
 				end

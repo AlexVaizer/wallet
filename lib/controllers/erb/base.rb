@@ -81,7 +81,7 @@ module Controller
 				end
 				@user = Model::User.new({_id:@token.payload["userId"]}).getFromDb
 				if @user.error
-					self.handleError("User #{@token.payload["userId"]}} does not exist", "0-0-2", 401)
+					self.handleError("User #{@token.payload["userId"]} does not exist", "0-0-2", 401)
 				end
 			end
 		end

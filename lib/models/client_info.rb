@@ -4,12 +4,13 @@ module Model
 			tableName: 'clientInfos',
 			idField: '_id',
 			fields:[
-				{ name: '_id', type: 'TEXT'},
-				{ name: 'clientId', type: 'TEXT'},
-				{ name: 'name', type: 'TEXT'},
-				{ name: 'webHookUrl', type: 'TEXT'},
-				{ name: 'permissions', type: 'TEXT' },
-				{ name: 'timeUpdated', type: 'TEXT'}
+				{ name: '_id', type: :text},
+				{ name: 'clientId', type: :text},
+				{ name: 'name', type: :text},
+				{ name: 'webHookUrl', type: :text},
+				{ name: 'permissions', type: :text},
+				{ name: 'timeUpdated', type: :time},
+				{ name: 'timeCreated', type: :time}
 			]
 		}
 		API_UPDATE_TIMEOUT = Model::API_UPDATE_TIMEOUT
@@ -23,7 +24,7 @@ module Model
 			return client = Mongo::Client.new(Model::MONGO_STRING, database: 'wallet-dev')
 		end
 		def	isValid
-			return @timeUpdated > (Time.now - API_UPDATE_TIMEOUT)
+			return @timeUpdated > (Time.now - API_UPDATE_TIMEOUT) if !@timeUpdated.nil?
 		end
 		def parseMonobankClientInfo(clientInfo,userId)
 			@clientId = clientInfo['clientId']

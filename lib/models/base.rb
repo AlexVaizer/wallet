@@ -2,7 +2,7 @@ module Model
 	MONGO_LOGIN = ENV['WALLET_MONGO_LOGIN'] 
 	MONGO_PASSWORD = ENV['WALLET_MONGO_PASSWORD']
 	MONGO_STRING = ENV['WALLET_MONGO_STRING']
-	MONGO_DATABASE = "zenmoney"
+	MONGO_DATABASE = "wallet-dev"
 	require 'mongo'
 	require 'securerandom'
 	Field = Struct.new(:name, :type, keyword_init: true)	
@@ -10,39 +10,46 @@ module Model
 	Error = Struct.new(:code, :message, :exception, keyword_init: true)
 	class Base
 		DATA_MODEL_OBJ_DEFAULT = Model::DataModel.new(tableName: 'default', idField: '_id', fieldSet: [])
-		#TIME_FORMAT = Model::TIME_FORMAT
+		TIME_FORMAT = Model::TIME_FORMAT
 		include Logging
 		attr_reader :error
 		def initialize(options = {})
 			@error = nil
-			self.parseOptions!(options)
+			parseOptions!(options)
 		end
 		def parseOptions!(options = {})			
-			self.fieldNames.each do |f|
+			fieldNames.each do |f|
 				self.instance_variable_set("@#{f}", options[f.to_sym]) if !options[f.to_sym].nil?
+			end if !options.nil?
+		end
+		def parseOptions(options = {})			
+			options.each do |k,v|
+				if fieldNames.include?(k)
+					instance_variable_set("@#{k}", v)
+				else
+					@error = {code: 400,message:"Field: #{k} does not exist"}
+				end
 			end if !options.nil?
 		end
 		def model
 			DATA_MODEL_OBJ_DEFAULT
 		end
-		def mongoClient
-			return client = Mongo::Client.new(Model::MONGO_STRING, database: Model::MONGO_DATABASE)
-		end
-
 		def fieldNames
 			return self.model.fieldSet.map { |e| e.name }
 		end
 		def to_h
 			h = {}
 			self.fieldNames.each do |f|
-				h[f.to_sym] = self.instance_variable_get("@#{f}").to_s #if !self.instance_variable_get("@#{f}").nil?
+				h[f.to_sym] = self.instance_variable_get("@#{f}") #if !self.instance_variable_get("@#{f}").nil?
 			end
+			h[:timeUpdated] = (@timeUpdated.strftime(TIME_FORMAT) if @timeUpdated)
+			h[:timeCreated] = (@timeUpdated.strftime(TIME_FORMAT) if @timeUpdated)
 			return h
 		end
 		def to_bson
 			h = {}
 			self.fieldNames.each do |f|
-				h[f] = self.instance_variable_get("@#{f}")
+				h[f.to_sym] = self.instance_variable_get("@#{f}")
 			end
 			h[:timeUpdated] = Time.now
 			return h
@@ -59,7 +66,7 @@ module Model
 		def getFromDb
 			logger.debug("#{self.class} Getting #{self.model.tableName} by '#{@_id}' id from DB")
 			begin
-				client = self.mongoClient
+				client = Mongo::Client.new(Model::MONGO_STRING, database: Model::MONGO_DATABASE)
 				coll = client[tableNameSym]
 				data = coll.find({idFieldSym => @_id}).first
 				if data.nil?
@@ -68,6 +75,7 @@ module Model
 				else
 					self.parseOptions!(data)
 				end
+				client.close
 			rescue => e 
 				client.close
 				raise e
@@ -75,23 +83,46 @@ module Model
 			return self
 		end
 		def saveToDb
+			if @_id.nil? || @_id.empty?
+				logger.debug("#{self.class} has no _id, generating one")	
+				@_id = SecureRandom.uuid
+			end
 			logger.debug("#{self.class} Replacing #{self.model.tableName} by '#{@_id}'")
 			begin
-				client = self.mongoClient
+				client = Mongo::Client.new(Model::MONGO_STRING, database: Model::MONGO_DATABASE)
 				collection = client[tableNameSym]
-				data = collection.replace_one({idFieldSym => @_id},self.to_bson)
+				data = collection.replace_one({idFieldSym => @_id},self.to_bson, upsert: true)
+				client.close
 			rescue => e 
 				client.close
 				raise e
 			end
 			return self
 		end
+		def insertToDb
+			@_id = SecureRandom.uuid if @_id.nil? || @_id.empty?
+			logger.debug("#{self.class} Inserting #{self.model.tableName}")
+			begin
+				client = Mongo::Client.new(Model::MONGO_STRING, database: Model::MONGO_DATABASE)
+				collection = client[tableNameSym]
+				payload = self.to_bson
+				payload[:timeCreated] = Time.now
+				data = collection.insert_one(payload)
+				client.close
+			rescue => e 
+				client.close
+				raise e
+			end
+			return self
+		end		
 		def deleteFromDb
 			logger.debug("#{self.class} Deleting #{model.tableName} by '#{@_id}' id from DB")
 			begin
-				client = self.mongoClient
+				#client = self.mongoClient
+				client = Mongo::Client.new(Model::MONGO_STRING, database: Model::MONGO_DATABASE)
 				collection = client[self.model.tableName.to_sym]
 				data = collection.delete_one({idFieldSym => @_id})
+				client.close
 			rescue => e 
 				client.close
 				raise e
@@ -118,9 +149,9 @@ module Model
 				el.userId = id
 			end
 		end
-		def mongoClient
-			return client = Mongo::Client.new(Model::MONGO_STRING, database: Model::MONGO_DATABASE)
-		end
+		# def mongoClient
+		# 	return client = Mongo::Client.new(Model::MONGO_STRING, database: Model::MONGO_DATABASE)
+		# end
 		def fieldNames
 			return self.model.fieldSet.map { |e| e.name }
 		end
@@ -147,7 +178,7 @@ module Model
 		def getFromDb(page = @page, size = @size, request = {},sort = @sort)
 			logger.debug("#{self.class} Getting #{size} #{model.tableName} from DB with params: #{request}")
 			begin
-				client = self.mongoClient
+				client = Mongo::Client.new(Model::MONGO_STRING, database: Model::MONGO_DATABASE)
 				collection = client[model.tableName.to_sym]
 				params = {}
 				params[:limit] = size
@@ -166,33 +197,18 @@ module Model
 					}
 				]
 				pagedata = collection.aggregate(aggregations)
-				#puts pagedata.inspect
 				pagedata = pagedata.first
 				self.parseOptions!(pagedata['data'])
 				@page = page
 				@sort = sort
-				@size = pagedata['data'].size
-				@total = pagedata['data'].size
-				@total = pagedata['totalCount'].first['count'] if !pagedata.nil?
 				client.close
 			rescue => e
 				client.close
 				raise e
 			end
-			return self
-		end
-		def insertToDb
-			logger.debug("#{self.class} Inserting #{@list.length} #{self.model.tableName} from DB with params")
-			begin
-				client = self.mongoClient
-				collection = client[self.model.tableName.to_sym]
-				data = collection.insert_many(self.to_a)
-				self.parseOptions!(data.to_a)
-				client.close
-			rescue => e
-				client.close
-				raise e
-			end
+			@size = pagedata['data'].size
+			@total = pagedata['data'].size
+			@total = pagedata['totalCount'].first['count'] if !pagedata['totalCount'].empty?
 			return self
 		end
 		def saveToDb

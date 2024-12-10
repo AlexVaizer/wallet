@@ -5,16 +5,17 @@ module Model
 			tableName: 'accounts',
 			idField: '_id',
 			fields: [ 
-				{ name: '_id', type: 'TEXT'},
-				{ name: 'balance', type: 'NUMERIC'},
-				{ name: 'balanceUsd', type: 'NUMERIC'},
-				{ name: 'currencyCode', type: 'TEXT'},
-				{ name: 'type', type: 'TEXT'},
-				{ name: 'maskedPan', type: 'TEXT'},
-				{ name: 'maskedPanFull', type: 'TEXT'},
-				{ name: 'ethUsdRate', type: 'NUMERIC'},
-				{ name: 'userId', type: 'TEXT'},
-				{ name: 'timeUpdated', type: 'TEXT'},
+				{ name: '_id', type: :text},
+				{ name: 'balance', type: :integer},
+				{ name: 'balanceUsd', type: :integer},
+				{ name: 'currencyCode', type: :text},
+				{ name: 'type', type: :text},
+				{ name: 'maskedPan', type: :text},
+				{ name: 'maskedPanFull', type: :text},
+				{ name: 'ethUsdRate', type: :text},
+				{ name: 'userId', type: :text},
+				{ name: 'timeUpdated', type: :time},
+				{ name: 'timeCreated', type: :time}
 			]
 		}
 		PAYMENT_SYSTEMS = {

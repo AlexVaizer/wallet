@@ -14,8 +14,8 @@ module Model
 				{ name: 'txFee', type: 'TEXT'},
 				{ name: 'etherscanUrl', type: 'TEXT'},
 				{ name: 'description', type: 'TEXT'},
-				{ name: 'timeCreated', type: 'TEXT'},
-				{ name: 'timeUpdated', type: 'TEXT'}
+				{ name: 'timeCreated', type: :time},
+				{ name: 'timeUpdated', type: :time}
 			]
 		}
 		fieldSet = DATA_MODEL[:fields].map { |e| Field.new(name: e[:name], type: e[:type]) }
