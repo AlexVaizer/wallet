@@ -22,9 +22,6 @@ module Model
 		def model
 			DATA_MODEL_OBJ
 		end
-		def mongoClient
-			return client = Mongo::Client.new(Model::MONGO_STRING, database: 'wallet-dev')
-		end
 		def parseCryptedPass()
 			return BCrypt::Password.new(@password) if @password
 		end
@@ -34,9 +31,6 @@ module Model
 		DATA_MODEL_OBJ = Model::DataModel.new(tableName: User::DATA_MODEL[:tableName], idField: User::DATA_MODEL[:idField], fieldSet: fieldSet)
 		def model
 			DATA_MODEL_OBJ
-		end
-		def mongoClient
-			return client = Mongo::Client.new(Model::MONGO_STRING, database: 'wallet-dev')
 		end
 		def parseOptions!(options)
 			@list = []

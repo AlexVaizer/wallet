@@ -1,7 +1,7 @@
 module Controller
 	require 'securerandom'
+	include Logging
 	class Response
-		include Logging
 		attr_accessor :erb, :code, :success, :errorCode, :errorMessage, :cookie
 		def initialize(options = {})
 			@erb = options[:erb] || :errors
@@ -22,7 +22,6 @@ module Controller
 			}
 		end
 	end
-	require File.expand_path(File.join(__dir__,"/controllers/migration.rb"))
 	require File.expand_path(File.join(__dir__,"/controllers/erb.rb"))
 	require File.expand_path(File.join(__dir__,"/controllers/api.rb"))
 end

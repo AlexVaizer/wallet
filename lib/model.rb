@@ -2,7 +2,15 @@ module Model
 	TIME_FORMAT = "%d.%m %H:%M"
 	API_UPDATE_TIMEOUT = 70
 	ROUND_ETH_AMOUNTS_TO = 6
+	MONGO_STRING = ENV['WALLET_MONGO_STRING']
+	MONGO_DATABASE = "wallet-dev"
+	require 'mongo'
+	require 'securerandom'
+	Field = Struct.new(:name, :type, keyword_init: true)	
+	DataModel = Struct.new(:tableName, :idField, :fieldSet, keyword_init: true)
+	Error = Struct.new(:code, :message, :exception, keyword_init: true)
 	require File.expand_path(File.join(__dir__,"/models/base.rb"))
+	require File.expand_path(File.join(__dir__,"/models/base_list.rb"))
 	require File.expand_path(File.join(__dir__,"/models/user.rb"))
 	require File.expand_path(File.join(__dir__,"/models/account.rb"))
 	require File.expand_path(File.join(__dir__,"/models/client_info.rb"))

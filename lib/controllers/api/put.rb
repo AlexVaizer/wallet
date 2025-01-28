@@ -1,7 +1,7 @@
 module Controller
-	module API
-		class Put < Patch
-			@@ERROR_PREFIX = Controller::API::CLASS_ERROR_CODES['Put']
+	module Api
+		class Put < Base
+			@@ERROR_PREFIX = Controller::Api::CLASS_ERROR_CODES['Put']
 			def initVars
 				@token = nil
 				@protected = true

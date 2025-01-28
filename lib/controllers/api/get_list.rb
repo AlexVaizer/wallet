@@ -1,44 +1,41 @@
 module Controller
-	module API
+	module Api
 		class GetList < Base
-			@@ERROR_PREFIX = Controller::API::CLASS_ERROR_CODES['GetList']
-			@@SUCCESS_CODE = 200
-			attr_reader :modelName, :model, :id
-			def initVars
-				logger.debug(@request.path_info)
-				self.parsePath
-				@token = nil
-				@protected = true
-				@user = nil
-			end
+			DEFAULT_PAGE_SIZE = 100
+			@@ERROR_PREFIX = Controller::Api::CLASS_ERROR_CODES['GetList']
 			def getBySymbol
 				begin
 					@model = Model.getListBySymbol(@modelName)
 				rescue
-					self.handleError!("Unknown Model", "#{@@ERROR_PREFIX}-1",404)
-					return nil
+					@error = NotFoundError.new("Unknown Model")
+					@error.internalCode = "01-04"
+					@error.details = {value: @modelName}
+					raise @error
 				end
 			end
 			def parsePath
-				@modelName = @request.path_info.gsub(API::PATH_PREFIX, "")
+				@modelName = @request.path_info.gsub(Api::PATH_PREFIX, "")
 				@modelName = @modelName.to_sym
 			end
-			def prepareSuccessResponse
-				@response.data = @model.to_a
-				@response.status = @@SUCCESS_CODE
-				@response.success = true
+			def parseParams
+				@page = @request.params['page'].to_i if @request.params['page'] 
+				@page ||= 0
+				@size = @request.params['size'].to_i if @request.params['size']
+				@size ||= DEFAULT_PAGE_SIZE
+				@sort = {timeUpdated: -1}
+			end
+			def validateParams
+				parseParams
+			end
+			def validateRequest
+				validateHeaders
+				authorize
 			end
 			def run
-				self.getBySymbol
-				self.getFromDb if @model
-			end
-			def run!
-				begin
-					self.run
-				rescue => e 
-					@response.data = {}
-					self.handleError!("Internal Error", "#{@@ERROR_PREFIX}-0",500)
-				end
+				validateRequest
+				parseParams
+				getBySymbol
+				@model.getFromDb(@page,@size,{},@sort)
 			end
 		end
 	end

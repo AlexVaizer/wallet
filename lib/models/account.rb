@@ -28,9 +28,6 @@ module Model
 		def model
 			DATA_MODEL_OBJ
 		end
-		def mongoClient
-			return client = Mongo::Client.new(Model::MONGO_STRING, database: 'wallet-dev')
-		end
 		def statements
 			@statements
 		end
@@ -83,9 +80,6 @@ module Model
 		DATA_MODEL_OBJ = Model::DataModel.new(tableName: Account::DATA_MODEL[:tableName], idField: Account::DATA_MODEL[:idField], fieldSet: fieldSet)
 		def model
 			DATA_MODEL_OBJ
-		end
-		def mongoClient
-			return client = Mongo::Client.new(Model::MONGO_STRING, database: 'wallet-dev')
 		end
 		def parseOptions!(options)
 			@list = []

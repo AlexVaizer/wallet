@@ -1,9 +1,7 @@
 module Controller
-	module API
+	module Api
 		class Delete < Base
-			@@ERROR_PREFIX = "#{Controller::API::CLASS_ERROR_CODES['Delete']}"
-			@@SUCCESS_CODE = 200
-			attr_reader :modelName, :model, :id
+			@@ERROR_PREFIX = "#{Controller::Api::CLASS_ERROR_CODES['Delete']}"
 			def initVars
 				@token = nil
 				@protected = true

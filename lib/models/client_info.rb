@@ -20,9 +20,6 @@ module Model
 		def model
 			DATA_MODEL_OBJ
 		end
-		def mongoClient
-			return client = Mongo::Client.new(Model::MONGO_STRING, database: 'wallet-dev')
-		end
 		def	isValid
 			return @timeUpdated > (Time.now - API_UPDATE_TIMEOUT) if !@timeUpdated.nil?
 		end
@@ -38,9 +35,6 @@ module Model
 	class ClientInfosList < BaseList
 		fieldSet = ClientInfo::DATA_MODEL[:fields].map { |e| Field.new(name: e[:name], type: e[:type]) }
 		DATA_MODEL_OBJ = Model::DataModel.new(tableName: ClientInfo::DATA_MODEL[:tableName], idField: ClientInfo::DATA_MODEL[:idField], fieldSet: fieldSet)
-		def mongoClient
-			return client = Mongo::Client.new(Model::MONGO_STRING, database: 'wallet-dev')
-		end
 		def model
 			DATA_MODEL_OBJ
 		end

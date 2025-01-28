@@ -22,9 +22,6 @@ module Model
 		def model
 			DATA_MODEL_OBJ
 		end
-		def mongoClient
-			return client = Mongo::Client.new(Model::MONGO_STRING, database: 'wallet-dev')
-		end
 		def parseMonobankJar(options,userId)
 			@_id = options[:id] 
 			@sendId = options[:sendId]
@@ -43,9 +40,6 @@ module Model
 		attr_accessor *fieldSet.map { |e| e.name }
 		def model
 			DATA_MODEL_OBJ
-		end
-		def mongoClient
-			return client = Mongo::Client.new(Model::MONGO_STRING, database: 'wallet-dev')
 		end
 		def parseOptions!(options)
 			@list = []

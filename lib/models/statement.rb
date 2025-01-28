@@ -24,9 +24,6 @@ module Model
 		def model
 			DATA_MODEL_OBJ
 		end
-		def mongoClient
-			return client = Mongo::Client.new(Model::MONGO_STRING, database: 'wallet-dev')
-		end
 		def parseOptions!(options = {})
 			self.fieldNames.each do |f|
 				self.send("#{f}=",options[f.to_sym])
@@ -64,9 +61,6 @@ module Model
 		DATA_MODEL_OBJ = Model::DataModel.new(tableName: Statement::DATA_MODEL[:tableName], idField: Statement::DATA_MODEL[:idField], fieldSet: fieldSet)
 		def model
 			DATA_MODEL_OBJ
-		end
-		def mongoClient
-			return client = Mongo::Client.new(Model::MONGO_STRING, database: 'wallet-dev')
 		end
 		def parseOptions!(options)
 			@list = []

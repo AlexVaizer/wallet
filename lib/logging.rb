@@ -8,9 +8,9 @@ module Logging
 			else
 				level = 'info'
 			end
-			@logger ||= Logger.new($stdout, formatter: proc {|severity, datetime, progname, msg|
-				"time=[#{datetime}] severity=[#{severity}] cid=[#{progname}] - msg=[#{msg}]\n"
-			}, level: level)
+				@logger ||= Logger.new($stdout, formatter: proc {|severity, datetime, progname, msg|
+					"time=[#{datetime}] severity=[#{severity}] cid=[#{progname}] - msg=[#{msg}]\n"
+				}, level: level)
 		end
 
 		def logger=(logger)

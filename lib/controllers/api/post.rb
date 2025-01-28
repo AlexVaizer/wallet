@@ -1,22 +1,19 @@
 module Controller
-	module API
-		class Post < Put
-			@@ERROR_PREFIX = Controller::API::CLASS_ERROR_CODES['Put']
-			def initVars
-				@token = nil
-				@protected = true
-				@user = nil
-				self.parsePath
-			end
+	module Api
+		class Post < Base
+			@@ERROR_PREFIX = Controller::Api::CLASS_ERROR_CODES['Post']
 			def run
-				if self.parsePayload
-					@model = Model.getBySymbol(@modelName)
-					return self.handleError!(@model.error[:message], "#{@@ERROR_PREFIX}-3",@model.error[:code]) if @model.error
-					@model.parseOptions(@requestPayload)
-					@model.insertToDb
-					return self.handleError!(@model.error[:message], "#{@@ERROR_PREFIX}-4",@model.error[:code]) if @model.error
-					self.prepareSuccessResponse
+				validateRequest
+				self.getBySymbol
+				logger.debug("Parsing Payload: #{@requestPayload}")
+				@model.parseOptions(@requestPayload)
+				if @model.error
+					error = ValidationError.new("")
+					error.details = @model.error
+					error.internalCode = "01-06"
+					raise error
 				end
+				@model.insertToDb
 			end
 		end
 	end

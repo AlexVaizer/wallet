@@ -17,19 +17,23 @@ require File.expand_path('./lib/controller.rb')
 #########################################################
 env = ENV['WALLET_ENV'] || 'development'
 env = env.to_sym
-disable :logging
+#enable :logging
 ServerSettings::ENV = ServerSettings.validate_env(env)
 ServerSettings.save_pid
-#ServerSettings.create_token_keypair
-migration = Controller::Migration.new
+
+ServerSettings.create_token_keypair
+#migration = Controller::Migration.new
 #migration.run!
+#puts "ENV: #{ENV.inspect}"
+#puts "Logger: #{$logger.inspect}"
+#puts "self class: #{self}"
 
 	set :environment, ServerSettings::ENV
 	set :port, ServerSettings::PORT
 	set :bind, ServerSettings::IP
 	set :allow_origin, '*'
 	set :views, Proc.new { File.join(root, "views") }
-	set :show_exceptions, false 
+	set :show_exceptions, true 
 	before do 
 		@title = "Wallet"
 	end
@@ -61,43 +65,42 @@ migration = Controller::Migration.new
 	get '/public/*' do 
 		send_file(File.join('./public', params['splat'][0]))
 	end
+
 if [:development,:test].include?(ServerSettings::ENV)
-
-
-	get '/api/:model/:id' do
-		@c = Controller::API::Get.new(request)
+	get '/api/admin/:model/:id' do
+		@c = Controller::Api::Get.new(request).run!
 		status @c.response.status
 		headers @c.response.headers
-		body @c.response.to_json
+		body @c.response.to_h.to_json
 	end
-	get '/api/:model' do
-		@c = Controller::API::GetList.new(request)
+	get '/api/admin/:model' do
+		@c = Controller::Api::GetList.new(request).run!
 		status @c.response.status
 		headers @c.response.headers
-		body @c.response.to_json
+		body @c.response.to_h.to_json
 	end
-	delete '/api/:model/:id' do
-		@c = Controller::API::Delete.new(request)
+	delete '/api/admin/:model/:id' do
+		@c = Controller::Api::Delete.new(request).run!
 		status @c.response.status
 		headers @c.response.headers
-		body @c.response.to_json
+		body @c.response.to_h.to_json
 	end
-	patch '/api/:model/:id' do
-		@c = Controller::API::Patch.new(request)
+	patch '/api/admin/:model/:id' do
+		@c = Controller::Api::Patch.new(request).run!
 		status @c.response.status
 		headers @c.response.headers
-		body @c.response.to_json
+		body @c.response.to_h.to_json
 	end
-	put '/api/:model/:id' do
-		@c = Controller::API::Put.new(request)
+	put '/api/admin/:model/:id' do
+		@c = Controller::Api::Put.new(request).run!
 		status @c.response.status
 		headers @c.response.headers
-		body @c.response.to_json
+		body @c.response.to_h.to_json
 	end
-	post '/api/:model' do
-		@c = Controller::API::Post.new(request)
+	post '/api/admin/:model' do
+		@c = Controller::Api::Post.new(request).run!	
 		status @c.response.status
 		headers @c.response.headers
-		body @c.response.to_json
+		body @c.response.to_h.to_json
 	end
 end
