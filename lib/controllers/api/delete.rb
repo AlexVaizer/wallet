@@ -2,19 +2,23 @@ module Controller
 	module Api
 		class Delete < Base
 			@@ERROR_PREFIX = "#{Controller::Api::CLASS_ERROR_CODES['Delete']}"
-			def initVars
-				@token = nil
-				@protected = true
-				@user = nil
-				self.parsePath
+			def validateRequest
+				validateHeaders
+				authorize
 			end
 			def run
+				validateRequest
 				self.getBySymbol
-				if @model
-					@model._id = @id
-					self.deleteFromDb
-				end 
-				@response.data = {}
+				@model._id = @id
+				@model.getFromDb
+				if @model.error
+					@error = NotFoundError.new("Not Found")
+					@error.internalCode = "01-07"
+					@error.details = {params: {userId: @id}}
+					raise @error
+				end
+				@model.deleteFromDb
+				#@response.data = {}
 			end
 		end
 	end
