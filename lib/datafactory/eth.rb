@@ -1,11 +1,11 @@
 module DataFactory
 	module DataFactory::ETH
 		require 'bigdecimal'
-		ETH_API_URL = 'https://api.etherscan.io/api/'
+		ETH_API_URL = 'https://api.etherscan.io/v2/api/'
 		ETH_TX_URL = 'https://etherscan.io/tx/'
-		TX_LIST_PARAMS = {module: 'account',action: 'txlist',tag: 'latest',startblock: 0,endblock: 99999999,sort: 'desc'}
-		LAST_PRICE_PARAMS = {module: 'stats',action: 'ethprice'}
-		BALANCE_PARAMS = {module: 'account',action: 'balancemulti',tag: 'latest'}
+		TX_LIST_PARAMS = {chainid: 1, module: 'account',action: 'txlist',tag: 'latest',startblock: 0,endblock: 99999999,sort: 'desc'}
+		LAST_PRICE_PARAMS = {chainid: 1, module: 'stats',action: 'ethprice'}
+		BALANCE_PARAMS = {chainid: 1, module: 'account',action: 'balancemulti',tag: 'latest'}
 		ROUND_AMOUNTS_TO = 6
 		MOCK_DATA = {
 			last_price: {"ethbtc"=>"0.06809", "ethbtc_timestamp"=>"1643494559", "ethusd"=>"2603.9", "ethusd_timestamp"=>"1643494552"},
