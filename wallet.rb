@@ -63,7 +63,8 @@ migration.run!
 		@c = Controller::Login.new(request)
 		if @c.response.success 
 			response.set_cookie(:token, :value => @c.token.jwt, :expires => Time.at(@c.token.exp))
-			redirect to('/') 
+			#redirect to '/'
+			redirect to(request.env['HTTP_ORIGIN']) 
 		else
 			@resp = @c.response
 			status @resp.code
