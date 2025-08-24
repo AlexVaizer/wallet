@@ -17,6 +17,7 @@ module Controller
 				logger.debug("Request Params: #{@request.params}")
 				initVars
 				@protected = true
+				@requiredPermission = "API_ADMIN"
 			end
 			def getBySymbol
 				begin
@@ -31,7 +32,7 @@ module Controller
 			def parsePath
 				path = @request.path_info.gsub(Api::PATH_PREFIX, "").split("/")
 				@modelName = path[0].to_sym
-				@id = path[1]
+				@id = path[1].gsub("/","")
 			end
 			def initVars
 				self.parsePath
@@ -56,6 +57,7 @@ module Controller
 				rescue ValidationError, NotFoundError, AuthenticationError, AuthorizationError => e
 					logger.warn(e.inspect)
 					@response = ErrorResponse.new(success: false, status: e.class::HTTP_CODE, headers: DEFAULT_HEADERS, error: e.to_h)
+					logger.error(e.backtrace)
 				rescue => e
 					error = InternalError.new("")
 					error.internalCode = "0-0"

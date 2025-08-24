@@ -6,12 +6,13 @@ module Model
 			idField: '_id',
 			fields: [ 
 				{ name: '_id', type: :text},
-				{ name: 'password', type: :text},
+				{ name: 'password', type: :password},
 				{ name: 'monoApiKey', type: :text},
-				{ name: 'allowedAccountIds', type: :text},
-				{ name: 'allowedJarIds', type: :text},
-				{ name: 'ethAddresses', type: :text},
+				{ name: 'allowedAccountIds', type: :array},
+				{ name: 'allowedJarIds', type: :array},
+				{ name: 'ethAddresses', type: :array},
 				{ name: 'ethApiKey', type: :text},
+				{ name: 'permissions', type: :array},
 				{ name: 'timeUpdated', type: :time},
 				{ name: 'timeCreated', type: :time}
 			]

@@ -31,7 +31,16 @@ module Controller
 			def authorize
 				if @protected
 					logger.debug("Accessing protected Controller. Parsing Token: #{@request.cookies['token'][0..6] if @request.cookies['token']}..#{@request.cookies['token'][-6..-1] if @request.cookies['token']}")
-					self.parseToken
+					parseToken
+					if @requiredPermission
+						logger.debug("Checking User's Permissions for '#{@requiredPermission}' role")
+						return true if @user.permissions.include?(@requiredPermission) 
+						
+						logger.debug("No Needed Permissions for user #{@user._id}. Required: #{@requiredPermission}. Given: #{@user.permissions}")
+						@error = Api::AuthorizationError.new("No Needed Permissions. Required: #{@requiredPermission}. Given: #{@user.permissions}")
+						@error.internalCode = "01-04"
+						raise @error
+					end
 				else
 					logger.debug("Accessing unprotected controller, token parsing skipped")
 				end
