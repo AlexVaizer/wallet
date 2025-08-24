@@ -21,7 +21,7 @@ module Controller
 				@user = Model::User.new({_id: @userId}).getFromDb
 				if @user.parseCryptedPass == @password
 					@token = Token.new()
-					@token.create(userId: @user._id)
+					@token.create(userId: @user._id, permissions: @user.permissions)
 					@response.code = SUCCESS_CODE
 					@response.erb = SUCCESS_ERB
 					@response.success = true
