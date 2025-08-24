@@ -31,7 +31,7 @@ module Controller
 				logger.progname = "#{self.class}::#{@_objId}"
 				@request = request
 				@response = Response.new()
-				logger.info("Request: #{@request.ip.inspect} => #{@request.request_method.inspect} #{@request.path_info.inspect} with params: #{@request.params.inspect}")
+				logger.info("Request: #{@request.ip.inspect} => #{@request.request_method.inspect} #{@request.path_info.inspect}")
 				self.initVars
 				self.run! if self.checkAuth
 				
