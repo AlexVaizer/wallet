@@ -28,6 +28,9 @@ module Model
 		def fieldNames
 			return self.model.fieldSet.map { |e| e.name }
 		end
+		def fieldSet
+			return self.model.fieldSet.map {|e| e.to_h}
+		end
 		def to_h
 			h = {}
 			self.fieldNames.each do |f|
@@ -67,7 +70,7 @@ module Model
 					self.parseOptions!(data)
 				end
 			ensure
-				client.close
+				client.close if client
 			end
 			return self
 		end
@@ -78,7 +81,7 @@ module Model
 				collection = client[tableNameSym]
 				data = collection.replace_one({idFieldSym => @_id},self.to_bson, upsert: true)
 			ensure 
-				client.close
+				client.close if client
 			end
 			return self
 		end
@@ -92,7 +95,7 @@ module Model
 				payload[:timeCreated] = Time.now
 				data = collection.insert_one(payload)
 			ensure
-				client.close
+				client.close if client
 			end
 			return self
 		end		
@@ -103,7 +106,7 @@ module Model
 				collection = client[self.model.tableName.to_sym]
 				data = collection.delete_one({idFieldSym => @_id})
 			ensure
-				client.close
+				client.close if client
 			end
 			return self
 		end
