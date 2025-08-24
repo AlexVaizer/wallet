@@ -66,7 +66,13 @@ ServerSettings.create_token_keypair
 		send_file(File.join('./public', params['splat'][0]))
 	end
 
-if [:development,:test].include?(ServerSettings::ENV)
+	get '/api/datamodel/:model' do
+		@c = Controller::Api::GetDataModel.new(request).run!
+		status @c.response.status
+		headers @c.response.headers
+		body @c.response.to_h.to_json
+	end
+
 	get '/api/admin/:model/:id' do
 		@c = Controller::Api::Get.new(request).run!
 		status @c.response.status
@@ -79,6 +85,7 @@ if [:development,:test].include?(ServerSettings::ENV)
 		headers @c.response.headers
 		body @c.response.to_h.to_json
 	end
+
 	delete '/api/admin/:model/:id' do
 		@c = Controller::Api::Delete.new(request).run!
 		status @c.response.status
@@ -103,4 +110,3 @@ if [:development,:test].include?(ServerSettings::ENV)
 		headers @c.response.headers
 		body @c.response.to_h.to_json
 	end
-end
