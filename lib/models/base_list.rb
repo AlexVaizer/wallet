@@ -40,7 +40,7 @@ module Model
 
 			
 		end
-		def getFromDb(page, size,request,sort)
+		def getFromDb(page, size,request,sort = nil)
 			logger.debug("#{self.class} Getting #{page} page by #{size} #{model.tableName} from DB with request: #{request}, sort: #{sort}")
 			begin
 				client = Mongo::Client.new(Model::MONGO_STRING, database: Model::MONGO_DATABASE)
@@ -48,11 +48,11 @@ module Model
 				params = {}
 				params[:limit] = size
 				params[:skip] = page * size
-				params[:sort] = sort
+				params[:sort] = sort || @sort
 				aggregations = [
 					{ "$facet": {
 						"data": [
-							{ "$sort": sort},
+							{ "$sort": @sort},
 							{ "$match": request},
 							{ "$skip": size*page },
 							{ "$limit": size }
@@ -65,12 +65,12 @@ module Model
 				pagedata = pagedata.first
 				self.parseOptions!(pagedata['data'])
 				@page = page
-				@sort = sort
+				#@sort = sort
 			ensure
 				client.close
 			end
+			@sort = params[:sort]
 			@size = pagedata['data'].size
-			@total = pagedata['data'].size
 			@total = pagedata['totalCount'].first['count'] if !pagedata['totalCount'].empty?
 			return self
 		end
