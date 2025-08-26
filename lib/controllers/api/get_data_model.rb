@@ -7,14 +7,27 @@ module Controller
 				authorize
 			end
 			def parsePath
-				@modelName = @request.path_info.gsub("/api/datamodel/", "").gsub("/","")
-				@modelName = @modelName.to_sym
+				@modelName = @request.path_info.gsub("/api/schema", "")
+				#@modelName = @modelName.to_sym
 			end
 			def run
 				@requiredPermission = "API_CUSTOMER"
 				validateRequest
-				getBySymbol
-				@model = {@modelName => @model.fieldSet}
+				#getBySymbol
+				#@model = {@modelName => @model.fieldSet}
+				client = Mongo::Client.new(Model::MONGO_STRING, database: Model::MONGO_DATABASE)
+				coll = client['props-fe']
+				if @modelName.empty?
+					req = {"_id" => /schema./} 	
+					data = coll.find(req).to_a
+					@model = {"schemas" => data}
+				else
+					@modelName = @modelName.gsub("/","")
+					req = {"_id" => "schema.#{@modelName}"}
+					logger.debug(req)
+					data = coll.find(req).first
+					@model = data
+				end
 			end
 		end
 	end

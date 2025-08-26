@@ -66,8 +66,14 @@ ServerSettings.create_token_keypair
 	get '/public/*' do 
 		send_file(File.join('./public', params['splat'][0]))
 	end
+	get '/api/schema' do
+		@c = Controller::Api::GetDataModel.new(request).run!
+		status @c.response.status
+		headers @c.response.headers
+		body @c.response.to_h.to_json
+	end
 
-	get '/api/datamodel/:model' do
+	get '/api/schema/:model' do
 		@c = Controller::Api::GetDataModel.new(request).run!
 		status @c.response.status
 		headers @c.response.headers
