@@ -1,43 +1,27 @@
 module Model
 	class ClientInfo < Base
 		DATA_MODEL = {
-			tableName: 'clients',
-			idField: 'id',
+			tableName: 'clientInfos',
+			idField: '_id',
 			fields:[
-				{ name: 'id', type: 'TEXT'},
-				{ name: 'clientId', type: 'TEXT'},
-				{ name: 'name', type: 'TEXT'},
-				{ name: 'webHookUrl', type: 'TEXT'},
-				{ name: 'permissions', type: 'TEXT' },
-				{ name: 'timeUpdated', type: 'TEXT'}
+				{ name: '_id', type: :text},
+				{ name: 'clientId', type: :text},
+				{ name: 'name', type: :text},
+				{ name: 'webHookUrl', type: :text},
+				{ name: 'permissions', type: :text},
+				{ name: 'timeUpdated', type: :time},
+				{ name: 'timeCreated', type: :time}
 			]
 		}
-		ATTRS = [:clientId, :name, :webHookUrl, :permissions, :timeUpdated, :id, :isValid]
-		attr_accessor *ATTRS
-		def parseOptions(options)
-			@clientId = options[:clientId] || ''
-			@name = options[:name] || ''
-			@webHookUrl = options[:webHookUrl] || ''
-			@permissions = options[:permissions] || ''
-			@isValid = false
-			if options[:timeUpdated]
-				@timeUpdated = Time.parse(options[:timeUpdated])
-				@isValid = @timeUpdated > (Time.now - Model::API_UPDATE_TIMEOUT)
-			end
-			@id = options[:id]
-			@error = nil
-			@model = DATA_MODEL
-			return true
+		API_UPDATE_TIMEOUT = Model::API_UPDATE_TIMEOUT
+		fieldSet = DATA_MODEL[:fields].map { |e| Field.new(name: e[:name], type: e[:type]) }
+		DATA_MODEL_OBJ = Model::DataModel.new(tableName: DATA_MODEL[:tableName], idField: DATA_MODEL[:idField], fieldSet: fieldSet)
+		attr_accessor *fieldSet.map { |e| e.name }
+		def model
+			DATA_MODEL_OBJ
 		end
-		def to_h
-			return result = {
-				:clientId => @clientId,
-				:name => @name,
-				:webHookUrl => @webHookUrl,
-				:permissions => @permissions,
-				:timeUpdated => @timeUpdated.to_s,
-				:id => @id
-			}
+		def	isValid
+			return @timeUpdated > (Time.now - API_UPDATE_TIMEOUT) if !@timeUpdated.nil?
 		end
 		def parseMonobankClientInfo(clientInfo,userId)
 			@clientId = clientInfo['clientId']
@@ -45,8 +29,23 @@ module Model
 			@webHookUrl = clientInfo['webHookUrl']
 			@permissions = clientInfo['permissions']
 			@timeUpdated = Time.now
-			@isValid = true
-			@id = userId
+			@_id = userId
+		end
+	end
+	class ClientInfosList < BaseList
+		fieldSet = ClientInfo::DATA_MODEL[:fields].map { |e| Field.new(name: e[:name], type: e[:type]) }
+		DATA_MODEL_OBJ = Model::DataModel.new(tableName: ClientInfo::DATA_MODEL[:tableName], idField: ClientInfo::DATA_MODEL[:idField], fieldSet: fieldSet)
+		def model
+			DATA_MODEL_OBJ
+		end
+		def parseOptions!(options)
+			@model = DATA_MODEL_OBJ
+			@list = []
+			options.each {|acc| 
+				model = Model::ClientInfo.new(acc)
+				@list.push(model)
+			}
+			return true
 		end
 	end
 end

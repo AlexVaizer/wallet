@@ -3,7 +3,7 @@ module DataFactory
 	require 'uri'
 	require 'json'
 	
-	MOCK_DATA_FOR = [:development]
+	MOCK_DATA_FOR = []
 	TIME_FORMAT = "%d.%m %H:%M"
 	CURRENCIES = {
 		'840'			=> 'USD',
@@ -54,3 +54,5 @@ module DataFactory
 		return client_info
 	end
 end
+require File.expand_path(File.join(__dir__,"/datafactory/eth.rb"))
+require File.expand_path(File.join(__dir__,"/datafactory/mono.rb"))

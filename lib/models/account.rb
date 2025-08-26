@@ -1,54 +1,35 @@
 module Model
 	class Account < Base
+		ROUND_ETH_AMOUNTS_TO = Model::ROUND_ETH_AMOUNTS_TO
 		DATA_MODEL = {
 			tableName: 'accounts',
-			idField: 'id',
+			idField: '_id',
 			fields: [ 
-				{ name: 'id', type: 'TEXT'},
-				{ name: 'balance', type: 'NUMERIC'},
-				{ name: 'balanceUsd', type: 'NUMERIC'},
-				{ name: 'currencyCode', type: 'TEXT'},
-				{ name: 'type', type: 'TEXT'},
-				{ name: 'maskedPan', type: 'TEXT'},
-				{ name: 'maskedPanFull', type: 'TEXT'},
-				{ name: 'ethUsdRate', type: 'NUMERIC'},
-				{ name: 'userId', type: 'TEXT'},
-				{ name: 'timeUpdated', type: 'TEXT'},
+				{ name: '_id', type: :text},
+				{ name: 'balance', type: :integer},
+				{ name: 'balanceUsd', type: :integer},
+				{ name: 'currencyCode', type: :text},
+				{ name: 'type', type: :text},
+				{ name: 'maskedPan', type: :text},
+				{ name: 'maskedPanFull', type: :text},
+				{ name: 'ethUsdRate', type: :text},
+				{ name: 'userId', type: :text},
+				{ name: 'timeUpdated', type: :time},
+				{ name: 'timeCreated', type: :time}
 			]
 		}
 		PAYMENT_SYSTEMS = {
 			'5' => 'MC',
 			'4' => 'VISA'
 		}
-		PRINTABLE_ATTRS = [:id, :balance, :balanceUsd, :currencyCode, :type, :maskedPan, :maskedPanFull, :ethUsdRate, :userId, :statements]
-		attr_accessor(*PRINTABLE_ATTRS) 
-		def parseOptions(options)
-			@id = options[:id] || ''
-			@balance = options[:balance] || 0
-			@balanceUsd = options[:balanceUsd] || 0
-			@currencyCode = options[:currencyCode] || ''
-			@type = options[:type] || ''
-			@maskedPan = options[:maskedPan] || ''
-			@maskedPanFull = options[:maskedPanFull] || ''
-			@ethUsdRate = options[:ethUsdRate] || 0
-			@userId = options[:userId] || ''
-			@error = nil
-			@statements = nil
-			@model = DATA_MODEL
-			return true
+		fieldSet = DATA_MODEL[:fields].map { |e| Field.new(name: e[:name], type: e[:type]) }
+		DATA_MODEL_OBJ = Model::DataModel.new(tableName: DATA_MODEL[:tableName], idField: DATA_MODEL[:idField], fieldSet: fieldSet)
+		attr_accessor *fieldSet.map { |e| e.name }
+		def model
+			DATA_MODEL_OBJ
 		end
-		def to_h
-			return result = {
-				:id => @id, 
-				:balance => @balance, 
-				:balanceUsd => @balanceUsd, 
-				:currencyCode => @currencyCode, 
-				:type => @type, 
-				:maskedPan => @maskedPan, 
-				:maskedPanFull => @maskedPanFull, 
-				:ethUsdRate => @ethUsdRate, 
-				:userId => @userId,
-			}
+		def statements
+			@statements
 		end
 		def parseMonobankAccount(account, userId)
 			if account['maskedPan'].empty?
@@ -57,7 +38,7 @@ module Model
 				maskedPan = account['maskedPan'].first
 			end
 			ps_prefix = PAYMENT_SYSTEMS[maskedPan[0]]
-			@id = account['id']
+			@_id = account['id']
 			@balance = account['balance'].to_f/100
 			@balanceUsd = 0
 			@currencyCode = DataFactory::CURRENCIES[account['currencyCode'].to_s]
@@ -69,7 +50,7 @@ module Model
 		end
 		def parseEtherscanAccount(account = {},last_price = {},userId)
 			in_float = (BigDecimal(account['balance'])/10**18).to_f
-			bal_eth = in_float.round(Model::ROUND_ETH_AMOUNTS_TO)
+			bal_eth = in_float.round(ROUND_ETH_AMOUNTS_TO)
 			bal_usd = bal_eth * last_price['ethusd'].to_f
 			bal_usd = bal_usd.round(1)
 			@currencyCode = 'ETH'
@@ -78,7 +59,7 @@ module Model
 			@balance = bal_eth
 			@balanceUsd = bal_usd
 			@ethUsdRate = last_price['ethusd'].to_f
-			@id = account['account']
+			@_id = account['account']
 			@maskedPanFull = "#{account['account'][0..5]}..#{account['account'][-6..-1]}"
 			@userId = userId
 			return true
@@ -86,37 +67,30 @@ module Model
 		def getStatements(options = {monoApiKey: '', ethApiKey: ''})
 			@statements = Model::StatementsList.new([])
 			if @type == 'CRYPT' then 
-				logger.debug("Getting Statements from Etherscan for account: #{id}")
-				@statements.getEtherscanStatements(@id,options[:ethApiKey])
+				logger.debug("#{self.class} Getting Statements from Etherscan for account: #{@_id}")
+				@statements.getEtherscanStatements(@_id,options[:ethApiKey])
 			else
-				logger.debug("Getting Statements from Monobank for account: #{id}")
-				@statements.getMonobankStatements(@id,options[:monoApiKey])
+				logger.debug("#{self.class} Getting Statements from Monobank for account: #{@_id}")
+				@statements.getMonobankStatements(@_id,options[:monoApiKey])
 			end
 		end
 	end
-		class AccountsList < BaseList
-		def parseOptions(options)
+	class AccountsList < BaseList
+		fieldSet = Account::DATA_MODEL[:fields].map { |e| Field.new(name: e[:name], type: e[:type]) }
+		DATA_MODEL_OBJ = Model::DataModel.new(tableName: Account::DATA_MODEL[:tableName], idField: Account::DATA_MODEL[:idField], fieldSet: fieldSet)
+		def model
+			DATA_MODEL_OBJ
+		end
+		def parseOptions!(options)
 			@list = []
 			options.each {|acc| 
 				model = Model::Account.new(acc)
 				@list.push(model)
 			}
-			@model = Account::DATA_MODEL
 			return true
 		end
 		def selectById(id)
-			return result = @list.select{|i| i.id == id}.first
-		end
-		def getFromDbByUser(userId)
-			logger.debug("Getting All Accounts List from DB")
-			data = DataFactory::SQLite.get_all(@model)
-			if data.nil? || data.empty?
-				@errors = {code: 404,message:"Could not find #{@model[:tableName]} by '#{userId}' id"}
-				logger.error(@errors.to_s)
-			else
-				self.parseOptions(data)
-			end
-			return self
+			@list.select{|i| i._id == id}.first
 		end
 		def parseApi(monoAccounts = [], ethAccounts = [],last_price = {},allowedAccounts = [],userId = '')
 			monoAccounts.each { |acc|
@@ -130,14 +104,8 @@ module Model
 				@list.push(obj)
 			}
 			@list.sort_by! {|acc| [acc.type,acc.currencyCode]}
-			logger.debug("Filtering retrieved accounts by: #{allowedAccounts}")
+			logger.debug("#{self.class} Filtering retrieved accounts by: #{allowedAccounts}")
 			self.filterByIdsList(allowedAccounts)
-		end
-		def saveToDb()
-			@list.each { |acc|
-				logger.debug("Saving Account #{acc.id} to DB")
-				DataFactory::SQLite.create(@model, acc.to_h)
-			}
 		end
 	end
 end

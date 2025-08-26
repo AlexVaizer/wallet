@@ -2,45 +2,44 @@ module Model
 	class User < Base
 		require 'bcrypt'
 		DATA_MODEL = {
-			tableName: 'user',
-			idField: 'id',
+			tableName: 'users',
+			idField: '_id',
 			fields: [ 
-				{ name: 'id', type: 'TEXT'},
-				{ name: 'password', type: 'TEXT'},
-				{ name: 'monoApiKey', type: 'TEXT'},
-				{ name: 'allowedAccountIds', type: 'TEXT'},
-				{ name: 'allowedJarIds', type: 'TEXT'},
-				{ name: 'ethAddresses', type: 'TEXT'},
-				{ name: 'ethApiKey', type: 'TEXT'},
-				{ name: 'timeUpdated', type: 'TEXT'}
+				{ name: '_id', type: :text},
+				{ name: 'password', type: :password},
+				{ name: 'monoApiKey', type: :text},
+				{ name: 'allowedAccountIds', type: :array},
+				{ name: 'allowedJarIds', type: :array},
+				{ name: 'ethAddresses', type: :array},
+				{ name: 'ethApiKey', type: :text},
+				{ name: 'permissions', type: :array},
+				{ name: 'timeUpdated', type: :time},
+				{ name: 'timeCreated', type: :time}
 			]
 		}
-		ATTRS = [:id, :password, :monoApiKey, :allowedAccountIds, :allowedJarIds, :ethAddresses, :ethApiKey]
-		attr_accessor *ATTRS
-		def parseOptions(options)
-			@id = options[:id]
-			@password = options[:password] || nil
-			@monoApiKey = options[:monoApiKey] || ''
-			@allowedAccountIds = options[:allowedAccountIds].split(',') if options[:allowedAccountIds]
-			@allowedJarIds = options[:allowedJarIds].split(',') if options[:allowedJarIds]
-			@ethAddresses = options[:ethAddresses].split(',') if options[:ethAddresses]
-			@ethApiKey = options[:ethApiKey] || ''
-			@error = nil
-			@model = DATA_MODEL
-			return true
+		fieldSet = DATA_MODEL[:fields].map { |e| Field.new(name: e[:name], type: e[:type]) }
+		DATA_MODEL_OBJ = Model::DataModel.new(tableName: DATA_MODEL[:tableName], idField: DATA_MODEL[:idField], fieldSet: fieldSet)
+		attr_accessor *fieldSet.map { |e| e.name }
+		def model
+			DATA_MODEL_OBJ
 		end
 		def parseCryptedPass()
 			return BCrypt::Password.new(@password) if @password
 		end
-		def to_h
-			return result = {
-				:id => @id,
-				:password => @password,
-				:monoApiKey => @monoApiKey,
-				:allowedAccountIds => @allowedAccountIds.join(','),
-				:ethAddresses => @ethAddresses.join(','),
-				:ethApiKey => @ethApiKey
+	end
+	class UsersList < BaseList
+		fieldSet = User::DATA_MODEL[:fields].map { |e| Field.new(name: e[:name], type: e[:type]) }
+		DATA_MODEL_OBJ = Model::DataModel.new(tableName: User::DATA_MODEL[:tableName], idField: User::DATA_MODEL[:idField], fieldSet: fieldSet)
+		def model
+			DATA_MODEL_OBJ
+		end
+		def parseOptions!(options)
+			@list = []
+			options.each {|acc| 
+				model = Model::User.new(acc)
+				@list.push(model)
 			}
+			return true
 		end
 	end
 end

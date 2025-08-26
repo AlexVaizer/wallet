@@ -7,7 +7,8 @@ StartLimitIntervalSec=0
 Type=simple
 User=root
 Environment=<%= "'RACK_ENV=production'" %>
-Environment=<%= "'WALLET_DB_PATH=#{@env_values['db_path']}'" %>
+Environment=<%= "'WALLET_MONGO_STRING=#{@env_values['db_path']}'" %>
+Environment=<%= "'WALLET_DB_NAME=#{@env_values['db_name']}'" %>
 Environment=<%= "'WALLET_ENV=production'" %>
 WorkingDirectory=<%=ServerSettings::CURRENT_FOLDER%>
 ExecStart=<%=File.join(ServerSettings::CURRENT_FOLDER, 'wallet.rb')%>

@@ -11,37 +11,29 @@ require "sinatra/cookies"
 require File.expand_path('./lib/server_settings.rb')
 require File.expand_path('./lib/logging.rb')
 require File.expand_path('./lib/datafactory.rb')
-require File.expand_path('./lib/datafactory/mono.rb')
-require File.expand_path('./lib/datafactory/eth.rb')
-require File.expand_path('./lib/datafactory/sqlite.rb')
 require File.expand_path('./lib/model.rb')
-require File.expand_path('./lib/models/base.rb')
-require File.expand_path('./lib/models/user.rb')
-require File.expand_path('./lib/models/client_info.rb')
-require File.expand_path('./lib/models/account.rb')
-require File.expand_path('./lib/models/statement.rb')
-require File.expand_path('./lib/models/jar.rb')
 require File.expand_path('./lib/token.rb')
-require File.expand_path('./lib/controllers/migration.rb')
-require File.expand_path('./lib/controllers/base.rb')
-require File.expand_path('./lib/controllers/get_index.rb')
-require File.expand_path('./lib/controllers/login.rb')
+require File.expand_path('./lib/controller.rb')
 #########################################################
 env = ENV['WALLET_ENV'] || 'development'
 env = env.to_sym
-disable :logging
+#enable :logging
 ServerSettings::ENV = ServerSettings.validate_env(env)
 ServerSettings.save_pid
+
 ServerSettings.create_token_keypair
-migration = Controller::Migration.new
-migration.run!
+#migration = Controller::Migration.new
+#migration.run!
+#puts "ENV: #{ENV.inspect}"
+#puts "Logger: #{$logger.inspect}"
+#puts "self class: #{self}"
 
 	set :environment, ServerSettings::ENV
 	set :port, ServerSettings::PORT
 	set :bind, ServerSettings::IP
 	set :allow_origin, '*'
 	set :views, Proc.new { File.join(root, "views") }
-	set :show_exceptions, false 
+	set :show_exceptions, true 
 	before do 
 		@title = "Wallet"
 	end
@@ -51,7 +43,7 @@ migration.run!
 	end
 
 	get '/' do
-		@c = Controller::GetIndex.new(request)
+		@c = Controller::Erb::GetIndex.new(request)
 		@title =  "#{@c.requestedAccount.maskedPan} - " + @title if @c.requestedAccount
 		@resp = @c.response
 		status @resp.code
@@ -60,8 +52,8 @@ migration.run!
 	end
 
 	post '/login' do 
-		@c = Controller::Login.new(request)
-		if @c.response.success 
+		@c = Controller::Erb::Login.new(request)
+		if @c.response.success
 			response.set_cookie(:token, :value => @c.token.jwt, :expires => Time.at(@c.token.exp))
 			#redirect to '/'
 			redirect to(request.env['HTTP_ORIGIN']) 
@@ -71,7 +63,51 @@ migration.run!
 			erb @resp.erb
 		end
 	end
-
 	get '/public/*' do 
 		send_file(File.join('./public', params['splat'][0]))
+	end
+
+	get '/api/datamodel/:model' do
+		@c = Controller::Api::GetDataModel.new(request).run!
+		status @c.response.status
+		headers @c.response.headers
+		body @c.response.to_h.to_json
+	end
+
+	get '/api/admin/:model/:id' do
+		@c = Controller::Api::Get.new(request).run!
+		status @c.response.status
+		headers @c.response.headers
+		body @c.response.to_h.to_json
+	end
+	get '/api/admin/:model' do
+		@c = Controller::Api::GetList.new(request).run!
+		status @c.response.status
+		headers @c.response.headers
+		body @c.response.to_h.to_json
+	end
+
+	delete '/api/admin/:model/:id' do
+		@c = Controller::Api::Delete.new(request).run!
+		status @c.response.status
+		headers @c.response.headers
+		body @c.response.to_h.to_json
+	end
+	patch '/api/admin/:model/:id' do
+		@c = Controller::Api::Patch.new(request).run!
+		status @c.response.status
+		headers @c.response.headers
+		body @c.response.to_h.to_json
+	end
+	put '/api/admin/:model/:id' do
+		@c = Controller::Api::Put.new(request).run!
+		status @c.response.status
+		headers @c.response.headers
+		body @c.response.to_h.to_json
+	end
+	post '/api/admin/:model' do
+		@c = Controller::Api::Post.new(request).run!	
+		status @c.response.status
+		headers @c.response.headers
+		body @c.response.to_h.to_json
 	end
