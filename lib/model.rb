@@ -3,7 +3,7 @@ module Model
 	API_UPDATE_TIMEOUT = 70
 	ROUND_ETH_AMOUNTS_TO = 6
 	MONGO_STRING = ENV['WALLET_MONGO_STRING']
-	MONGO_DATABASE = "wallet-dev"
+	MONGO_DATABASE = ENV['WALLET_DB_NAME']
 	require 'mongo'
 	require 'securerandom'
 	Field = Struct.new(:name, :type, keyword_init: true)	

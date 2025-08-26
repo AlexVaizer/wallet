@@ -1,21 +1,22 @@
 require File.expand_path('./lib/server_settings.rb')
-#require  File.expand_path('./lib/datafactory/sqlite.rb')
 require 'bcrypt'
-
-
 values = {}
 
-
-
-# Get DB PATH
-puts "Please enter SQLite DB path."
+# Get DB Connection string
+puts "Please enter Mongo DB connection URI. Must contain login/password"
 values['db_path'] = gets.chomp
 values['db_path'] = File.expand_path(values['db_path'])
 puts "DB path saved: #{values['db_path']}"
 puts "----------------------------------------------"
 
+# Get DB Name
+puts "Please enter Mongo Database name"
+values['db_name'] = gets.chomp
+values['db_name'] = File.expand_path(values['db_name'])
+puts "DB path saved: #{values['db_name']}"
+puts "----------------------------------------------"
 
-env_values_string = "WALLET_DEBUG_MODE='true' RACK_ENV='production' WALLET_DB_PATH=#{values['db_path']}"
+env_values_string = "WALLET_DEBUG_MODE='true' RACK_ENV='production' WALLET_MONGO_STRING=#{values['db_path']} WALLET_DB_NAME=#{values['db_name']}"
 puts "(WORKS ONLY IN UBUNTU) Do you want to set up service [y/n]"
 service_setup = gets.chomp
 until ['y','n'].include?(service_setup)
@@ -41,6 +42,8 @@ users_number.times do |user|
 	user[:ethAddresses] = gets.chomp
 	puts "Enter Etherscan Api Key. For using local data for FE debug enter any string"
 	user[:ethApiKey] = gets.chomp
+	puts "Permissions: API_ADMIN,WEB_ADMIN,API_CUSTOMER,WEB_CUSTOMER"
+	user[:permission] = gets.chomp
 	users.push(user)
 end
 
