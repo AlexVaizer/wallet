@@ -1,6 +1,39 @@
 module Controller
 	require 'securerandom'
 	include Logging
+	Setting = Struct.new(:_id, :value, keyword_init: true)
+	class Settings < Array 
+		SETTINGS_TABLE_NAME = 'props-be'
+		ENV_VARS_LIST = ["WALLET_MONGO_STRING","WALLET_DB_NAME", "WALLET_DEBUG_MODE", "RACK_ENV"]
+		def readEnvVars
+			ENV_VARS_LIST.each do |v|
+				s = {_id: v, value: ENV[v]}
+				self.push(Setting.new(s))
+			end
+		end
+		def to_a
+			return self.map { |e| e.to_h }
+		end
+		def id(id)
+			self.find {|e| e._id == id}
+		end
+		def val() 
+			self.value 
+		end
+		def getFromDb
+			#self.clear
+			readEnvVars
+			client = Mongo::Client.new(self.id("WALLET_MONGO_STRING").value, database: self.id("WALLET_DB_NAME").value)
+			coll = client[SETTINGS_TABLE_NAME]
+			req = {} 	
+			data = coll.find({}).to_a
+			data.each do |e|
+				self.push(Setting.new(e))
+			end
+			return self
+		end
+	end
+
 	class Response
 		attr_accessor :erb, :code, :success, :errorCode, :errorMessage, :cookie
 		def initialize(options = {})

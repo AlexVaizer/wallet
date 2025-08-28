@@ -15,22 +15,15 @@ require File.expand_path('./lib/model.rb')
 require File.expand_path('./lib/token.rb')
 require File.expand_path('./lib/controller.rb')
 #########################################################
-env = ENV['WALLET_ENV'] || 'development'
-env = env.to_sym
+$walletSettings = Controller::Settings.new().getFromDb
 #enable :logging
-ServerSettings::ENV = ServerSettings.validate_env(env)
+ServerSettings::ENV = ServerSettings.validate_env($walletSettings.id("sinatra.env").value.to_sym)
 ServerSettings.save_pid
 
-ServerSettings.create_token_keypair
-#migration = Controller::Migration.new
-#migration.run!
-#puts "ENV: #{ENV.inspect}"
-#puts "Logger: #{$logger.inspect}"
-#puts "self class: #{self}"
-
-	set :environment, ServerSettings::ENV
-	set :port, ServerSettings::PORT
-	set :bind, ServerSettings::IP
+ServerSettings.create_token_keypair if $walletSettings.id("sinatra.env").value == "production"
+	set :environment, $walletSettings.id("sinatra.env").value
+	set :port, $walletSettings.id("sinatra.port").value
+	set :bind, $walletSettings.id("sinatra.ip").value
 	set :allow_origin, '*'
 	set :views, Proc.new { File.join(root, "views") }
 	set :show_exceptions, true 
@@ -66,54 +59,5 @@ ServerSettings.create_token_keypair
 	get '/public/*' do 
 		send_file(File.join('./public', params['splat'][0]))
 	end
-	get '/api/schema' do
-		@c = Controller::Api::GetDataModel.new(request).run!
-		status @c.response.status
-		headers @c.response.headers
-		body @c.response.to_h.to_json
-	end
 
-	get '/api/schema/:model' do
-		@c = Controller::Api::GetDataModel.new(request).run!
-		status @c.response.status
-		headers @c.response.headers
-		body @c.response.to_h.to_json
-	end
-
-	get '/api/admin/:model/:id' do
-		@c = Controller::Api::Get.new(request).run!
-		status @c.response.status
-		headers @c.response.headers
-		body @c.response.to_h.to_json
-	end
-	get '/api/admin/:model' do
-		@c = Controller::Api::GetList.new(request).run!
-		status @c.response.status
-		headers @c.response.headers
-		body @c.response.to_h.to_json
-	end
-
-	delete '/api/admin/:model/:id' do
-		@c = Controller::Api::Delete.new(request).run!
-		status @c.response.status
-		headers @c.response.headers
-		body @c.response.to_h.to_json
-	end
-	patch '/api/admin/:model/:id' do
-		@c = Controller::Api::Patch.new(request).run!
-		status @c.response.status
-		headers @c.response.headers
-		body @c.response.to_h.to_json
-	end
-	put '/api/admin/:model/:id' do
-		@c = Controller::Api::Put.new(request).run!
-		status @c.response.status
-		headers @c.response.headers
-		body @c.response.to_h.to_json
-	end
-	post '/api/admin/:model' do
-		@c = Controller::Api::Post.new(request).run!	
-		status @c.response.status
-		headers @c.response.headers
-		body @c.response.to_h.to_json
-	end
+	require File.expand_path('./api.rb')
