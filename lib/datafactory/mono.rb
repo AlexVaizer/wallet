@@ -33,21 +33,21 @@ module DataFactory
 			],
 		}
 		def self.get_client_info(user,settings = [])
-			mock_data_for = settings.id("client.monobank.mockDataFor").value || DataFactory::MOCK_DATA_FOR
-			if mock_data_for.include?(settings.id("sinatra.env").value||DataFactory::ENVIRONMENT) then
+			mock_data_for = settings.v("client.monobank.mockDataFor") || DataFactory::MOCK_DATA_FOR
+			if mock_data_for.include?(settings.v("sinatra.env")||DataFactory::ENVIRONMENT) then
 				client_info = Marshal.load(Marshal.dump(MOCK_DATA[:client_info]))
 			else
-				url = URI.join(settings.id("client.monobank.baseUrl").value||API_URL, settings.id("client.monobank.path.clientInfo").value||CLIENT_INFO_PATH).to_s
+				url = URI.join(settings.v("client.monobank.baseUrl")||API_URL, settings.v("client.monobank.path.clientInfo")||CLIENT_INFO_PATH).to_s
 				client_info = DataFactory.send_request(url, user.monoApiKey)
 			end
 			return client_info
 		end
 		def self.get_statements(selected_account,monoApiKey,settings = [], date_start = Time.now.to_i - 30*24*60*60, date_end = Time.now.to_i)
-			mock_data_for = settings.id("client.monobank.mockDataFor").value || MOCK_DATA_FOR
-			if DataFactory::MOCK_DATA_FOR.include?(settings.id("sinatra.env").value||ENVIRONMENT) then
+			mock_data_for = settings.v("client.monobank.mockDataFor") || MOCK_DATA_FOR
+			if DataFactory::MOCK_DATA_FOR.include?(settings.v("sinatra.env")||ENVIRONMENT) then
 				statements = Marshal.load(Marshal.dump(MOCK_DATA[:statements]))
 			else
-				url = URI.join(settings.id("client.monobank.baseUrl").value||API_URL, "#{settings.id("client.monobank.path.statements").value||STATEMENTS_PATH}/#{selected_account}/#{date_start}/#{date_end}").to_s
+				url = URI.join(settings.v("client.monobank.baseUrl")||API_URL, "#{settings.v("client.monobank.path.statements")||STATEMENTS_PATH}/#{selected_account}/#{date_start}/#{date_end}").to_s
 				statements = DataFactory.send_request(url, monoApiKey)
 			end
 			return statements

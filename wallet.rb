@@ -17,13 +17,13 @@ require File.expand_path('./lib/controller.rb')
 #########################################################
 $walletSettings = Controller::Settings.new().getFromDb
 #enable :logging
-ServerSettings::ENV = ServerSettings.validate_env($walletSettings.id("sinatra.env").value.to_sym)
+ServerSettings::ENV = ServerSettings.validate_env($walletSettings.v("sinatra.env").to_sym)
 ServerSettings.save_pid
 
-ServerSettings.create_token_keypair if $walletSettings.id("sinatra.env").value == "production"
-	set :environment, $walletSettings.id("sinatra.env").value
-	set :port, $walletSettings.id("sinatra.port").value
-	set :bind, $walletSettings.id("sinatra.ip").value
+ServerSettings.create_token_keypair if $walletSettings.v("sinatra.env") == "production"
+	set :environment, $walletSettings.v("sinatra.env")
+	set :port, $walletSettings.v("sinatra.port")
+	set :bind, $walletSettings.v("sinatra.ip")
 	set :allow_origin, '*'
 	set :views, Proc.new { File.join(root, "views") }
 	set :show_exceptions, true 

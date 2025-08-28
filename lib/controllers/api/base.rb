@@ -14,7 +14,7 @@ module Controller
 			def initialize(request, settings = nil)
 				@_objId = SecureRandom.hex(10)
 				logger.progname = "#{self.class}::#{@_objId}"
-				logger.level = settings.id("sinatra.debug_mode").value if settings
+				logger.level = settings.v("sinatra.debug_mode") if settings
 				@request = request
 				logger.info("Request: #{@request.request_method} #{@request.ip}#{@request.path_info}")
 				logger.debug("Request Params: #{@request.params}")

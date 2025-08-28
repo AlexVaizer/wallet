@@ -15,15 +15,15 @@ module DataFactory
 		def self.get_client_info(user,settings = [])
 			ethApiKey = user.ethApiKey
 			ethAddresses = user.ethAddresses.join(',')
-			mock_data_for = settings.id("client.etherscan.mockDataFor").value||DataFactory::MOCK_DATA_FOR
-			if mock_data_for.include?(settings.id("sinatra.env").value||DataFactory::ENVIRONMENT)
+			mock_data_for = settings.v("client.etherscan.mockDataFor")||DataFactory::MOCK_DATA_FOR
+			if mock_data_for.include?(settings.v("sinatra.env")||DataFactory::ENVIRONMENT)
 				last_price = Marshal.load(Marshal.dump(MOCK_DATA[:last_price]))
 				balance = Marshal.load(Marshal.dump(MOCK_DATA[:balance]))
 			else
-				balance_params = settings.id("client.etherscan.params.balance").value||BALANCE_PARAMS
+				balance_params = settings.v("client.etherscan.params.balance")||BALANCE_PARAMS
 				balance_params[:address] = ethAddresses
-				last_price = DataFactory.send_request(settings.id("client.etherscan.baseUrl").value||ETH_API_URL, '', settings.id("client.etherscan.params.lastPrice").value||LAST_PRICE_PARAMS, ethApiKey)
-				balance = DataFactory.send_request(settings.id("client.etherscan.baseUrl").value||ETH_API_URL, '', balance_params, ethApiKey)
+				last_price = DataFactory.send_request(settings.v("client.etherscan.baseUrl")||ETH_API_URL, '', settings.v("client.etherscan.params.lastPrice")||LAST_PRICE_PARAMS, ethApiKey)
+				balance = DataFactory.send_request(settings.v("client.etherscan.baseUrl")||ETH_API_URL, '', balance_params, ethApiKey)
 			end
 			info = {
 				last_price: last_price,
@@ -32,13 +32,13 @@ module DataFactory
 			return info 
 		end
 		def self.get_statements(address,ethApiKey,settings = [])
-			mock_data_for = settings.id("client.etherscan.mockDataFor").value||DataFactory::MOCK_DATA_FOR
-			if mock_data_for.include?(settings.id("sinatra.env").value||DataFactory::ENVIRONMENT)
+			mock_data_for = settings.v("client.etherscan.mockDataFor")||DataFactory::MOCK_DATA_FOR
+			if mock_data_for.include?(settings.v("sinatra.env")||DataFactory::ENVIRONMENT)
 				statements = Marshal.load(Marshal.dump(MOCK_DATA[:tx_list]))
 			else
-				tx_params = settings.id("client.etherscan.params.txList").value||TX_LIST_PARAMS
+				tx_params = settings.v("client.etherscan.params.txList")||TX_LIST_PARAMS
 				tx_params = tx_params.merge({address: address})
-				statements = DataFactory.send_request(settings.id("client.etherscan.baseUrl").value||ETH_API_URL, '', params, ethApiKey)
+				statements = DataFactory.send_request(settings.v("client.etherscan.baseUrl")||ETH_API_URL, '', params, ethApiKey)
 			end
 			return statements
 		end

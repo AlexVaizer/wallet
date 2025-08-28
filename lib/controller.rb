@@ -17,8 +17,9 @@ module Controller
 		def id(id)
 			self.find {|e| e._id == id}
 		end
-		def val() 
-			self.value 
+		def v(id) 
+			s = self.find {|e| e._id == id}
+			return s.value
 		end
 		def getFromDb
 			#self.clear
