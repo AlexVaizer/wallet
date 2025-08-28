@@ -58,6 +58,7 @@ module Controller
 		require File.expand_path(File.join(__dir__,"/api/get.rb"))
 		require File.expand_path(File.join(__dir__,"/api/get_list.rb"))
 		require File.expand_path(File.join(__dir__,"/api/get_data_model.rb"))
+		require File.expand_path(File.join(__dir__,"/api/get_props.rb"))
 		require File.expand_path(File.join(__dir__,"/api/delete.rb"))
 		require File.expand_path(File.join(__dir__,"/api/patch.rb"))
 		require File.expand_path(File.join(__dir__,"/api/put.rb"))

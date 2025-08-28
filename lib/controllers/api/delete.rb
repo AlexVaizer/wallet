@@ -1,7 +1,7 @@
 module Controller
 	module Api
 		class Delete < Base
-			@@ERROR_PREFIX = "#{Controller::Api::CLASS_ERROR_CODES['Delete']}"
+			ERROR_PREFIX = "#{Controller::Api::CLASS_ERROR_CODES['Delete']}"
 			def validateRequest
 				validateHeaders
 				authorize
@@ -13,7 +13,7 @@ module Controller
 				@model.getFromDb
 				if @model.error
 					@error = NotFoundError.new("Not Found")
-					@error.internalCode = "01-07"
+					@error.internalCode = "#{self.class::ERROR_PREFIX}-01-07"
 					@error.details = {params: {userId: @id}}
 					raise @error
 				end

@@ -1,7 +1,12 @@
 module Controller
 	module Api
 		class Post < Base
-			@@ERROR_PREFIX = Controller::Api::CLASS_ERROR_CODES['Post']
+			ERROR_PREFIX = Controller::Api::CLASS_ERROR_CODES['Post']
+			def parsePath
+				path = @request.path_info.gsub(Api::PATH_PREFIX, "").split("/")
+				@modelName = path[0].to_sym
+				#@id = path[1].gsub("/","") #comment
+			end
 			def run
 				validateRequest
 				self.getBySymbol
@@ -10,7 +15,7 @@ module Controller
 				if @model.error
 					error = ValidationError.new("")
 					error.details = @model.error
-					error.internalCode = "01-06"
+					error.internalCode = "#{self.class::ERROR_PREFIX}-01-06"
 					raise error
 				end
 				@model.insertToDb

@@ -13,7 +13,7 @@ module Controller
 				#logger.debug("Headers parsed: #{h}")
 				if !h['accept'].nil? && h['accept'] != 'application/json'
 					@error = ValidationError.new("Request Validation Failed") 
-					@error.internalCode = "01-03"
+					@error.internalCode = "#{self.class::ERROR_PREFIX}-01-03"
 					@error.details = {headers: {accept: {error:"only application/json acceptable", value: h['accept']}}}
 					raise @error 
 				end
@@ -24,7 +24,7 @@ module Controller
 				@user = Model::User.new({_id:@token.payload["userId"]}).getFromDb if @token.isValid
 				if !@token.isValid || @user.error
 					@error = Api::AuthenticationError.new("Token invalid")
-					@error.internalCode = "01-01"
+					@error.internalCode = "#{self.class::ERROR_PREFIX}-01-01"
 					raise @error
 				end
 			end
@@ -38,7 +38,7 @@ module Controller
 						
 						logger.debug("No Needed Permissions for user #{@user._id}. Required: #{@requiredPermission}. Given: #{@user.permissions}")
 						@error = Api::AuthorizationError.new("No Needed Permissions. Required: #{@requiredPermission}. Given: #{@user.permissions}")
-						@error.internalCode = "01-04"
+						@error.internalCode = "#{self.class::ERROR_PREFIX}-01-04"
 						raise @error
 					end
 				else
@@ -53,7 +53,7 @@ module Controller
 					@requestPayload = JSON.parse(body, symbolize_names: true)
 				rescue => e 
 					@error = Api::ValidationError.new("Request Validation Failed")
-					@error.internalCode = "01-02"
+					@error.internalCode = "#{self.class::ERROR_PREFIX}-01-02"
 					@error.details = e.inspect
 					raise @error
 				end
