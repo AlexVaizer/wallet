@@ -8,7 +8,7 @@ module Controller
 					@model = Model.getListBySymbol(@modelName)
 				rescue
 					@error = NotFoundError.new("Unknown Model")
-					@error.internalCode = "#{self.class::ERROR_PREFIX}-01-04"
+					@error.internalCode = "#{self.class::ERROR_PREFIX}-04"
 					@error.details = {value: @modelName}
 					raise @error
 				end

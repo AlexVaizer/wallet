@@ -15,7 +15,7 @@ module Controller
 				if @model.error
 					error = ValidationError.new("")
 					error.details = @model.error
-					error.internalCode = "#{self.class::ERROR_PREFIX}-01-06"
+					error.internalCode = "#{self.class::ERROR_PREFIX}-06"
 					raise error
 				end
 				@model.insertToDb

@@ -72,6 +72,7 @@ module Controller
 					@response.code = SUCCESS_CODE
 					@response.erb = SUCCESS_ERB
 					@response.success = true
+					logger.debug $walletSettings.inspect
 				rescue => e
 				 	logger.debug("Error: #{e.inspect}. Backtrace: #{e.backtrace.take(10)}")
 				 	raise e

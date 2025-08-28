@@ -1,17 +1,18 @@
 module Controller
 	module Api
 		class GetDataModel < Base
-			ERROR_PREFIX = "#{Controller::Api::CLASS_ERROR_CODES['Get']}"
+			ERROR_PREFIX = "#{Controller::Api::CLASS_ERROR_CODES['GetDataModel']}"
+			PATH_PREFIX = "customer/"
+			REQUIRED_PERMISSION = "API_CUSTOMER"
 			def validateRequest
 				validateHeaders
 				authorize
 			end
 			def parsePath
-				@modelName = @request.path_info.gsub("/api/customer/info/schema", "")
+				@modelName = @request.path_info.gsub("info/schema", "")
 				#@modelName = @modelName.to_sym
 			end
 			def run
-				@requiredPermission = "API_CUSTOMER"
 				validateRequest
 				client = Mongo::Client.new(Model::MONGO_STRING, database: Model::MONGO_DATABASE)
 				coll = client['props-fe']

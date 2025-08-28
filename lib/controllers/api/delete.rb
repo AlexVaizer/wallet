@@ -13,7 +13,7 @@ module Controller
 				@model.getFromDb
 				if @model.error
 					@error = NotFoundError.new("Not Found")
-					@error.internalCode = "#{self.class::ERROR_PREFIX}-01-07"
+					@error.internalCode = "#{self.class::ERROR_PREFIX}-07"
 					@error.details = {params: {userId: @id}}
 					raise @error
 				end

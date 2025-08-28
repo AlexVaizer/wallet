@@ -9,7 +9,7 @@ module Controller
 				@model.getFromDb
 				if @model.error
 					@error = NotFoundError.new("Not Found")
-					@error.internalCode = "#{self.class::ERROR_PREFIX}-01-07"
+					@error.internalCode = "#{self.class::ERROR_PREFIX}-07"
 					@error.details = {params: {userId: @id}}
 					raise @error
 				end
@@ -18,7 +18,7 @@ module Controller
 				if @model.error
 					error = ValidationError.new("")
 					error.details = @model.error
-					error.internalCode = "#{self.class::ERROR_PREFIX}-01-08"
+					error.internalCode = "#{self.class::ERROR_PREFIX}-08"
 					raise error
 				end
 				@model.saveToDb

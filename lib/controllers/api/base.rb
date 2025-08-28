@@ -8,6 +8,8 @@ module Controller
 			}
 			HAS_REQUEST_BODY = false
 			HAS_RESPONSE_BODY = true
+			PATH_PREFIX = 'admin/'
+			REQUIRED_PERMISSION = 'API_ADMIN'
 			include Logging
 			include Api::RequestValidations
 			attr_reader :response, :request, :protected, :token, :user, :modelName, :model, :id
@@ -20,20 +22,20 @@ module Controller
 				logger.debug("Request Params: #{@request.params}")
 				initVars
 				@protected = true
-				@requiredPermission = "API_ADMIN"
+				@requiredPermission = self.class::REQUIRED_PERMISSION
 			end
 			def getBySymbol
 				begin
 					@model = Model.getBySymbol(@modelName)
 				rescue
 					@error = NotFoundError.new("")
-					@error.internalCode = "#{self.class::ERROR_PREFIX}-01-05"
+					@error.internalCode = "#{self.class::ERROR_PREFIX}-05"
 					@error.details = {value: @modelName}
 					raise @error
 				end
 			end
 			def parsePath
-				path = @request.path_info.gsub(Api::PATH_PREFIX, "").split("/")
+				path = @request.path_info.gsub(Api::PATH_PREFIX, "").gsub(self.class::PATH_PREFIX,"").split("/")
 				@modelName = path[0].to_sym
 				@id = path[1].gsub("/","")
 			end
@@ -48,7 +50,7 @@ module Controller
 				@model.getFromDb
 				if @model.error
 					@error = NotFoundError.new("Not Found")
-					@error.internalCode = "#{self.class::ERROR_PREFIX}-01-03"
+					@error.internalCode = "#{self.class::ERROR_PREFIX}-03"
 					@error.details = {params: {userId: @id}}
 					raise @error 
 				end

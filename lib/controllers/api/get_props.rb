@@ -1,7 +1,7 @@
 module Controller
 	module Api
 		class GetProps < Base
-			ERROR_PREFIX = "#{Controller::Api::CLASS_ERROR_CODES['Get']}"
+			ERROR_PREFIX = "#{Controller::Api::CLASS_ERROR_CODES['GetProps']}"
 			def validateRequest
 				validateHeaders
 				authorize
@@ -14,7 +14,7 @@ module Controller
 			end
 		end
 		class GetProp < Base
-			ERROR_PREFIX = "#{Controller::Api::CLASS_ERROR_CODES['Get']}"
+			ERROR_PREFIX = "#{Controller::Api::CLASS_ERROR_CODES['GetProp']}"
 			def validateRequest
 				validateHeaders
 				authorize
