@@ -8,12 +8,13 @@ module Controller
 			'Delete' => "#{MODULE_ERROR_CODE}-03",
 			'Patch' => "#{MODULE_ERROR_CODE}-04",
 			'Put' => "#{MODULE_ERROR_CODE}-05",
-			'Post' => "#{MODULE_ERROR_CODE}-06"
+			'Post' => "#{MODULE_ERROR_CODE}-06",
+			'GetProps' => "#{MODULE_ERROR_CODE}-07",
+			'GetProp' => "#{MODULE_ERROR_CODE}-08",
+			'GetDataModel' => "#{MODULE_ERROR_CODE}-09",
+			'GetDataModels' => "#{MODULE_ERROR_CODE}-10"
 		}
-		ERROR_CODES = {
-
-		}
-		PATH_PREFIX = '/api/admin/'
+		PATH_PREFIX = '/api/'
 		ErrorResponse = Struct.new(:success, :status, :error, :headers, keyword_init: true)
 		SuccessResponse = Struct.new(:success, :status, :data, :headers, keyword_init: true)
 		class GenericError < Exception
