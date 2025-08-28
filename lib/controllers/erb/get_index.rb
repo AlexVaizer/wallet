@@ -20,7 +20,7 @@ module Controller
 					@requestedAccount = @accountsList.selectById(@requestedAccountId)
 					self.handleError("Account #{@requestedAccountId} was not found","#{CONTROLLER_ERROR_PREFIX}-01-01",404) if @requestedAccount.nil?
 					begin
-						@requestedAccount.getStatements({monoApiKey:@user.monoApiKey, ethApiKey:@user.ethApiKey})
+						@requestedAccount.getStatements({monoApiKey:@user.monoApiKey, ethApiKey:@user.ethApiKey, settings:$walletSettings})
 					rescue => e
 						self.handleError(e.message,"#{CONTROLLER_ERROR_PREFIX}-01-07", 500)
 					end
@@ -28,7 +28,7 @@ module Controller
 			end
 			def getMonobankClientInfo
 				logger.info("Getting Client Info and Accounts from Monobank/Mock")
-				clientInfo = DataFactory::Mono.get_client_info(@user)
+				clientInfo = DataFactory::Mono.get_client_info(@user,$walletSettings)
 				monoAccounts = clientInfo['accounts']
 				jars = clientInfo['jars']
 				clientInfo.delete('accounts')
@@ -37,7 +37,7 @@ module Controller
 				logger.debug("Parsing Client Info from Monobank/Mock")
 				@clientInfo.parseMonobankClientInfo(clientInfo,@user._id)
 				logger.debug("Getting Client Info and Accounts from Etherscan")
-				ethClientInfo = DataFactory::ETH.get_client_info(@user)
+				ethClientInfo = DataFactory::ETH.get_client_info(@user, $walletSettings)
 				@accountsList = Model::AccountsList.new()
 				logger.debug("Parsing Accounts from Monobank and Etherscan")
 				@accountsList.parseApi(monoAccounts, ethClientInfo[:balances], ethClientInfo[:last_price],@user.allowedAccountIds,@user._id)
@@ -60,11 +60,10 @@ module Controller
 				if !@clientInfo.isValid
 					self.getMonobankClientInfo
 					self.saveAllToDb
-				else
-					logger.debug("Getting Client Accounts and Jars from DB")
-					@accountsList = Model::AccountsList.new().getFromDb(0,15,{userId: @user._id})
-					@jarsList = Model::JarsList.new().getFromDb(0,15,{userId: @user._id})
 				end
+				logger.debug("Getting Client Accounts and Jars from DB")
+				@accountsList = Model::AccountsList.new().getFromDb(0,15,{userId: @user._id})
+				@jarsList = Model::JarsList.new().getFromDb(0,15,{userId: @user._id})
 			end
 			def run!
 				begin
