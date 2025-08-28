@@ -88,14 +88,14 @@ module Model
 			}
 			return true
 		end
-		def getMonobankStatements(accountId,monoApiKey)
+		def getMonobankStatements(accountId,monoApiKey,settings)
 			logger.debug("#{self.class} Getting Statements from Monobank by AccountId: #{accountId} with apiKey: #{monoApiKey}")
-			self.parseMonobankStatements(DataFactory::Mono.get_statements(accountId,monoApiKey))
+			self.parseMonobankStatements(DataFactory::Mono.get_statements(accountId,monoApiKey,settings))
 			return true
 		end
-		def getEtherscanStatements(accountId,ethApiKey)
+		def getEtherscanStatements(accountId,ethApiKey,settings)
 			logger.debug("#{self.class} Getting Statements from Etherscan by AccountId: #{accountId}")
-			self.parseEtherscanStatements(DataFactory::ETH.get_statements(accountId,ethApiKey),accountId)
+			self.parseEtherscanStatements(DataFactory::ETH.get_statements(accountId,ethApiKey,settings),accountId)
 			return true
 		end
 	end

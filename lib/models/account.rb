@@ -64,14 +64,14 @@ module Model
 			@userId = userId
 			return true
 		end
-		def getStatements(options = {monoApiKey: '', ethApiKey: ''})
+		def getStatements(options = {monoApiKey: '', ethApiKey: '', settings: []})
 			@statements = Model::StatementsList.new([])
 			if @type == 'CRYPT' then 
 				logger.debug("#{self.class} Getting Statements from Etherscan for account: #{@_id}")
-				@statements.getEtherscanStatements(@_id,options[:ethApiKey])
+				@statements.getEtherscanStatements(@_id,options[:ethApiKey],options[:settings])
 			else
 				logger.debug("#{self.class} Getting Statements from Monobank for account: #{@_id}")
-				@statements.getMonobankStatements(@_id,options[:monoApiKey])
+				@statements.getMonobankStatements(@_id,options[:monoApiKey],options[:settings])
 			end
 		end
 	end
