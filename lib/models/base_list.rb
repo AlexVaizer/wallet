@@ -52,10 +52,10 @@ module Model
 				aggregations = [
 					{ "$facet": {
 						"data": [
-							{ "$sort": @sort},
+							{ "$sort": params[:sort]},
 							{ "$match": request},
-							{ "$skip": size*page },
-							{ "$limit": size }
+							{ "$skip": params[:skip] },
+							{ "$limit": params[:limit] }
 						],
 						"totalCount": [{ "$group": {_id: nil, "count": { "$sum": 1 }}}]
 					}
