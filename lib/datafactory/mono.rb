@@ -32,20 +32,22 @@ module DataFactory
 				{"id"=>"ZEcXBmHXn6GzoqPN", "time"=>1612143372, "description"=>"Відсотки за сiчень", "mcc"=>4829, "amount"=>5010, "operationAmount"=>5010, "currencyCode"=>980, "commissionRate"=>0, "cashbackAmount"=>0, "balance"=>1423312, "hold"=>true}
 			],
 		}
-		def self.get_client_info(user)
-			if DataFactory::MOCK_DATA_FOR.include?(DataFactory::ENVIRONMENT) then
-				client_info = Marshal.load(Marshal.dump(DataFactory::Mono::MOCK_DATA[:client_info]))
+		def self.get_client_info(user,settings = [])
+			mock_data_for = settings.id("client.monobank.mockDataFor").value || DataFactory::MOCK_DATA_FOR
+			if mock_data_for.include?(settings.id("sinatra.env").value||DataFactory::ENVIRONMENT) then
+				client_info = Marshal.load(Marshal.dump(MOCK_DATA[:client_info]))
 			else
-				url = URI.join(DataFactory::Mono::API_URL, DataFactory::Mono::CLIENT_INFO_PATH).to_s
+				url = URI.join(settings.id("client.monobank.baseUrl").value||API_URL, settings.id("client.monobank.path.clientInfo").value||CLIENT_INFO_PATH).to_s
 				client_info = DataFactory.send_request(url, user.monoApiKey)
 			end
 			return client_info
 		end
-		def self.get_statements(selected_account,monoApiKey, date_start = Time.now.to_i - 30*24*60*60, date_end = Time.now.to_i)
-			if DataFactory::MOCK_DATA_FOR.include?(DataFactory::ENVIRONMENT) then
-				statements = Marshal.load(Marshal.dump(DataFactory::Mono::MOCK_DATA[:statements]))
+		def self.get_statements(selected_account,monoApiKey,settings = [], date_start = Time.now.to_i - 30*24*60*60, date_end = Time.now.to_i)
+			mock_data_for = settings.id("client.monobank.mockDataFor").value || MOCK_DATA_FOR
+			if DataFactory::MOCK_DATA_FOR.include?(settings.id("sinatra.env").value||ENVIRONMENT) then
+				statements = Marshal.load(Marshal.dump(MOCK_DATA[:statements]))
 			else
-				url = URI.join(DataFactory::Mono::API_URL, "#{DataFactory::Mono::STATEMENTS_PATH}/#{selected_account}/#{date_start}/#{date_end}").to_s
+				url = URI.join(settings.id("client.monobank.baseUrl").value||API_URL, "#{settings.id("client.monobank.path.statements").value||STATEMENTS_PATH}/#{selected_account}/#{date_start}/#{date_end}").to_s
 				statements = DataFactory.send_request(url, monoApiKey)
 			end
 			return statements

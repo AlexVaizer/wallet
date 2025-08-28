@@ -11,10 +11,8 @@ module DataFactory
 		'980'			=> 'UAH',
 		'9999'			=> 'ETH',
 	}
-	env = ENV['WALLET_ENV'] || 'development'
-	ENVIRONMENT = env.to_sym
-	#TODO fix privacy in mock data
-
+	MOCK_DATA_FOR = ['development']
+	ENVIRONMENT = 'development'
 	def DataFactory.send_request(url, mono_token = '', params = [], eth_token = '')
 		if url.downcase.include?('etherscan')
 			raise ArgumentError.new("Add params Hash and ETH token") if params.empty? || eth_token.empty?
