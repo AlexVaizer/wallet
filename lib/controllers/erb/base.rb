@@ -76,7 +76,7 @@ module Controller
 
 			def parseToken
 				reqToken = @request.cookies['token']
-				@token = Token.new(reqToken)
+				@token = Token.new(reqToken,@settings)
 				if !@token.isValid
 					self.handleError("Token Parsing failed", '0-0-1', 401)
 				end

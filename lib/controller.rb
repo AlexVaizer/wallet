@@ -4,11 +4,20 @@ module Controller
 	Setting = Struct.new(:_id, :value, keyword_init: true)
 	class Settings < Array 
 		include Logging
+		include ServerSettings
 		SETTINGS_TABLE_NAME = 'props-be'
-		ENV_VARS_LIST = ["WALLET_MONGO_STRING","WALLET_DB_NAME"]
-		def readEnvVars
+		ENV_VARS_LIST = ["WALLET_MONGO_STRING","WALLET_DB_NAME", "RACK_ENV"]
+		def readEnvVars(array = nil) 
 			ENV_VARS_LIST.each do |v|
-				s = {_id: "env.#{v}", value: ENV[v]}
+				if !(ENV[v].nil? || ENV[v].empty?)
+					s = {_id: "env.#{v}", value: ENV[v]}
+					self.push(Setting.new(s))
+				end
+			end
+		end
+		def readVars(hash) 
+			hash.each do |k,v|
+				s = {_id: "env.#{k}", value: v}
 				self.push(Setting.new(s))
 			end
 		end

@@ -20,7 +20,7 @@ module Controller
 			end
 			def parseToken
 				reqToken = @request.cookies['token']
-				@token = Token.new(reqToken)
+				@token = Token.new(reqToken,@settings)
 				@user = Model::User.new({_id:@token.payload["userId"]}).getFromDb if @token.isValid
 				if !@token.isValid || @user.error
 					@error = Api::AuthenticationError.new("Token invalid")

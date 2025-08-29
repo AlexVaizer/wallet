@@ -7,12 +7,11 @@ StartLimitIntervalSec=0
 Type=simple
 User=root
 Environment=<%= "'RACK_ENV=production'" %>
-Environment=<%= "'WALLET_MONGO_STRING=#{@env_values['db_path']}'" %>
-Environment=<%= "'WALLET_DB_NAME=#{@env_values['db_name']}'" %>
-Environment=<%= "'WALLET_ENV=production'" %>
-WorkingDirectory=<%=ServerSettings::CURRENT_FOLDER%>
-ExecStart=<%=File.join(ServerSettings::CURRENT_FOLDER, 'wallet.rb')%>
-ExecStop=<%=File.join(ServerSettings::CURRENT_FOLDER,'stop.rb')%>
+Environment=<%= "'WALLET_MONGO_STRING=#{@env_values['WALLET_MONGO_STRING']}'" %>
+Environment=<%= "'WALLET_DB_NAME=#{@env_values['WALLET_DB_NAME']}'" %>
+WorkingDirectory=<%=Controller::Settings::CURRENT_FOLDER%>
+ExecStart=<%=File.join(Controller::Settings::CURRENT_FOLDER, 'wallet.rb')%>
+ExecStop=<%=File.join(Controller::Settings::CURRENT_FOLDER,'stop.rb')%>
 
 
 SyslogIdentifier=wallet.service

@@ -1,20 +1,12 @@
 class Token	
 	require 'jwt'
-	SIGN_KEY_PATH = ENV['SIGN_KEY_PATH'] || "#{ServerSettings::JWT_KEYPAIR_PATH}/#{ServerSettings::JWT_SIGN_FILE_NAME}"
-	VERIFY_KEY_PATH = ENV['VERIFY_KEY_PATH'] || "#{ServerSettings::JWT_KEYPAIR_PATH}/#{ServerSettings::JWT_VERIFY_FILE_NAME}"
+	include Logging
 	TOKEN_TTL = 7*24*3600 #7 days
 	attr_reader :errorMessage, :exp, :header, :payload, :verifyKey, :signKey, :jwt, :isValid
 	
-	def initialize(token = nil)
-		@signKey = ''
-		File.open(SIGN_KEY_PATH) do |file|
-				@signKey = OpenSSL::PKey.read(file)
-		end
-		@verifyKey = ''
-		File.open(VERIFY_KEY_PATH) do |file|
-				@verifyKey = OpenSSL::PKey.read(file)
-		end
-
+	def initialize(token = nil, settings = nil)
+		@signKey = OpenSSL::PKey.read(settings.get("sinatra.jwt.keys.sign"))
+		@verifyKey = OpenSSL::PKey.read(settings.get("sinatra.jwt.keys.verify"))
 		@payload = nil 
 		@jwt = nil
 		@isValid = false
@@ -24,23 +16,23 @@ class Token
 
 	def parseJwt(jwt)
 		@jwt = jwt
-		begin
-			@payload, @header = JWT.decode(@jwt, @verifyKey, true, { algorithm: 'RS256'} )
+		# begin
+			@payload, @header = JWT.decode(@jwt, @verifyKey, true, { algorithm: 'RS256'})
 			@exp = @header["exp"]
 			@isValid = true
 			if @exp.nil?
-				@errorMessage = "No exp set on JWT token."
+				raise ArgumentError.new "No exp set on JWT token."
 				@isValid = false
 			end
 			@exp = Time.at(@exp.to_i)
 			if Time.now > @exp
-				@errorMessage = "JWT token expired."
+				raise ArgumentError.new "JWT token expired."
 				@isValid = false
 			end
-		rescue JWT::DecodeError => e
-			@errorMessage = "JWT invalid: #{e.message}"
-			@isValid = false
-		end
+		# rescue JWT::DecodeError => e
+		# 	@errorMessage = "JWT invalid: #{e.message}"
+		# 	@isValid = false
+		# end
 	end
 
 		

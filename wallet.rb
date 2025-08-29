@@ -8,27 +8,20 @@ Bundler.require
 require 'sinatra'
 require "sinatra/basic_auth"
 require "sinatra/cookies"
-require File.expand_path('./lib/server_settings.rb')
-require File.expand_path('./lib/logging.rb')
-require File.expand_path('./lib/datafactory.rb')
-require File.expand_path('./lib/model.rb')
-require File.expand_path('./lib/token.rb')
-require File.expand_path('./lib/controller.rb')
+require File.expand_path('./lib.rb')
 #########################################################
 $walletSettings = Controller::Settings.new().getFromDb
-#enable :logging
-ServerSettings::ENV = ServerSettings.validate_env($walletSettings.get("sinatra.env").to_sym)
-ServerSettings.save_pid
-
-ServerSettings.create_token_keypair if $walletSettings.get("sinatra.env") == "production"
+disable :logging
+$walletSettings.validate_env($walletSettings.get("sinatra.env").to_sym)
+$walletSettings.save_pid
 	set :environment, $walletSettings.get("sinatra.env")
 	set :port, $walletSettings.get("sinatra.port")
 	set :bind, $walletSettings.get("sinatra.ip")
-	set :allow_origin, '*'
-	set :views, Proc.new { File.join(root, "views") }
-	set :show_exceptions, true 
+	set :allow_origin, $walletSettings.get("sinatra.allowOrigin")
+	set :views, Proc.new { File.join(root, $walletSettings.get("sinatra.viewsDir")) }
+	set :show_exceptions, $walletSettings.get("sinatra.showExceptions")
 	before do 
-		@title = "Wallet"
+		@title = $walletSettings.get("sinatra.erb.webTitle")
 	end
 
 	get '/login' do 
@@ -37,7 +30,7 @@ ServerSettings.create_token_keypair if $walletSettings.get("sinatra.env") == "pr
 
 	get '/' do
 		@c = Controller::Erb::GetIndex.new(request)
-		@title =  "#{@c.requestedAccount.maskedPan} - " + @title if @c.requestedAccount
+		@title =  "#{@c.requestedAccount.maskedPan} - #{@title}" if @c.requestedAccount
 		@resp = @c.response
 		status @resp.code
 		cookies.delete(:token) if @resp.code == 401

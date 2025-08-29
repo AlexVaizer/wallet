@@ -20,7 +20,7 @@ module Controller
 				self.handleError!("Password was not defined","#{CONTROLLER_ERROR_PREFIX}-01-02",400) if !@userId
 				@user = Model::User.new({_id: @userId}).getFromDb
 				if @user.parseCryptedPass == @password
-					@token = Token.new()
+					@token = Token.new(nil,@settings)
 					@token.create(userId: @user._id, permissions: @user.permissions)
 					@response.code = SUCCESS_CODE
 					@response.erb = SUCCESS_ERB
