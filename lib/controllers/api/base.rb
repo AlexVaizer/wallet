@@ -19,7 +19,7 @@ module Controller
 				logger.level = "debug" if @settings.get("sinatra.debug_mode") == true
 				@request = request
 				logger.info("Request: #{@request.request_method} #{@request.ip}#{@request.path_info}")
-				logger.debug("Request Params: #{@request.inspect}")	
+				#logger.debug("Request Params: #{@request.inspect}")	
 				initVars
 				@protected = true
 				@requiredPermission = self.class::REQUIRED_PERMISSION

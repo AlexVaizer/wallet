@@ -15,7 +15,6 @@ end
 
 get '/api/admin/props' do
 	@c = Controller::Api::GetProps.new(request).run!
-	@c.logger.debug("#{$walletSettings.class} #{$walletSettings.inspect}")
 	status @c.response.status
 	headers @c.response.headers
 	body @c.response.to_h.to_json
