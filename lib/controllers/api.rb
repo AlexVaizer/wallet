@@ -14,7 +14,7 @@ module Controller
 			'GetDataModel' => "#{MODULE_ERROR_CODE}-09",
 			'GetDataModels' => "#{MODULE_ERROR_CODE}-10"
 		}
-		PATH_PREFIX = '/api/'
+		API_PATH_PREFIX = '/api/'
 		ErrorResponse = Struct.new(:success, :status, :error, :headers, keyword_init: true)
 		SuccessResponse = Struct.new(:success, :status, :data, :headers, keyword_init: true)
 		class GenericError < Exception

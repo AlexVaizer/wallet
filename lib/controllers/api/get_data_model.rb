@@ -2,15 +2,18 @@ module Controller
 	module Api
 		class GetDataModel < Base
 			ERROR_PREFIX = "#{Controller::Api::CLASS_ERROR_CODES['GetDataModel']}"
-			PATH_PREFIX = "customer/"
+			PATH_PREFIX = "customer/info/schema"
 			REQUIRED_PERMISSION = "API_CUSTOMER"
+			HAS_REQUEST_BODY = false
+			HAS_RESPONSE_BODY = true
 			def validateRequest
 				validateHeaders
 				authorize
 			end
 			def parsePath
-				@modelName = @request.path_info.gsub("info/schema", "")
-				#@modelName = @modelName.to_sym
+				@modelName = @request.path_info.gsub(Api::API_PATH_PREFIX, "")
+				@modelName = @modelName.gsub(self.class::PATH_PREFIX,"")
+				logger.debug("model name: #{@modelName}")
 			end
 			def run
 				validateRequest

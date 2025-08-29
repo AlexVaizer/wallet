@@ -6,9 +6,8 @@ module Controller
 			DEFAULT_HEADERS = {
 				"Content-Type" => "application/json"
 			}
-			HAS_REQUEST_BODY = false
+			HAS_REQUEST_BODY = false 
 			HAS_RESPONSE_BODY = true
-			PATH_PREFIX = 'admin/'
 			REQUIRED_PERMISSION = 'API_ADMIN'
 			include Logging
 			include Api::RequestValidations
@@ -19,25 +18,30 @@ module Controller
 				logger.level = settings.v("sinatra.debug_mode") if settings
 				@request = request
 				logger.info("Request: #{@request.request_method} #{@request.ip}#{@request.path_info}")
-				logger.debug("Request Params: #{@request.params}")
+				logger.debug("Request Params: #{@request.inspect}")	
 				initVars
 				@protected = true
 				@requiredPermission = self.class::REQUIRED_PERMISSION
 			end
 			def getBySymbol
 				begin
+					logger.debug(@modelName)
 					@model = Model.getBySymbol(@modelName)
 				rescue
-					@error = NotFoundError.new("")
+					@error = NotFoundError.new("@modelName")
 					@error.internalCode = "#{self.class::ERROR_PREFIX}-05"
 					@error.details = {value: @modelName}
 					raise @error
 				end
 			end
 			def parsePath
-				path = @request.path_info.gsub(Api::PATH_PREFIX, "").gsub(self.class::PATH_PREFIX,"").split("/")
+				path = @request.path_info.gsub(Api::API_PATH_PREFIX, "")
+				path = path.gsub(self.class::PATH_PREFIX,"").split("/")
+				logger.debug("111path: #{path}")
+				logger.debug("Api::API_PATH_PREFIX: #{Api::API_PATH_PREFIX}")
+				logger.debug("PATH_PREFIX: #{self.class::PATH_PREFIX}")
 				@modelName = path[0].to_sym
-				@id = path[1].gsub("/","")
+				@id = path[1]
 			end
 			def initVars
 				self.parsePath

@@ -3,6 +3,9 @@ module Controller
 		class GetList < Base
 			DEFAULT_PAGE_SIZE = 100
 			ERROR_PREFIX = Controller::Api::CLASS_ERROR_CODES['GetList']
+			HAS_REQUEST_BODY = false
+			HAS_RESPONSE_BODY = true
+			PATH_PREFIX = 'admin/'
 			def getBySymbol
 				begin
 					@model = Model.getListBySymbol(@modelName)
@@ -14,7 +17,8 @@ module Controller
 				end
 			end
 			def parsePath
-				@modelName = @request.path_info.gsub(Api::PATH_PREFIX, "")
+				@modelName = @request.path_info.gsub(Api::API_PATH_PREFIX, "")
+				@modelName = @modelName.gsub(self.class::PATH_PREFIX,"")
 				@modelName = @modelName.to_sym
 			end
 			def parseParams

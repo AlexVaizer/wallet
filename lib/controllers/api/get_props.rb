@@ -2,6 +2,10 @@ module Controller
 	module Api
 		class GetProps < Base
 			ERROR_PREFIX = "#{Controller::Api::CLASS_ERROR_CODES['GetProps']}"
+			REQUIRED_PERMISSION = "API_ADMIN"
+			HAS_REQUEST_BODY = false
+			HAS_RESPONSE_BODY = true
+			PATH_PREFIX = 'admin/'
 			def validateRequest
 				validateHeaders
 				authorize
@@ -14,7 +18,11 @@ module Controller
 			end
 		end
 		class GetProp < Base
+			REQUIRED_PERMISSION = "API_ADMIN"
+			HAS_REQUEST_BODY = false
+			HAS_RESPONSE_BODY = true
 			ERROR_PREFIX = "#{Controller::Api::CLASS_ERROR_CODES['GetProp']}"
+			PATH_PREFIX = 'admin/'
 			def validateRequest
 				validateHeaders
 				authorize
