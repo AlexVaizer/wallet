@@ -28,13 +28,14 @@ module Controller
 			attr_reader :response, :request, :protected, :token
 			def initialize(request, options = {})
 				@_objId = SecureRandom.hex(10)
+				@settings = Controller::Settings.new().getFromDb
 				logger.progname = "#{self.class}::#{@_objId}"
+				logger.level = 'debug' if @settings.get("sinatra.debug_mode")
 				@request = request
 				@response = Response.new()
 				logger.info("Request: #{@request.ip.inspect} => #{@request.request_method.inspect} #{@request.path_info.inspect}")
 				self.initVars
 				self.run! if self.checkAuth
-				
 				logger.info("ResponseCode: #{@response.code}, ERB: #{@response.erb}")
 			end
 			def initVars

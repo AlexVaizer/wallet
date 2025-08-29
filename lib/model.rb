@@ -1,6 +1,5 @@
 module Model
 	TIME_FORMAT = "%d.%m %H:%M"
-	API_UPDATE_TIMEOUT = 70
 	ROUND_ETH_AMOUNTS_TO = 6
 	MONGO_STRING = ENV['WALLET_MONGO_STRING']
 	MONGO_DATABASE = ENV['WALLET_DB_NAME']
@@ -16,7 +15,7 @@ module Model
 	require File.expand_path(File.join(__dir__,"/models/client_info.rb"))
 	require File.expand_path(File.join(__dir__,"/models/jar.rb"))
 	require File.expand_path(File.join(__dir__,"/models/statement.rb"))
-	require File.expand_path(File.join(__dir__,"/models/zm_account.rb"))
+	#require File.expand_path(File.join(__dir__,"/models/zm_account.rb"))
 	#require File.expand_path(File.join(__dir__,"/models/zm_tx.rb"))
 	
 	def self.getBySymbol(symbol)

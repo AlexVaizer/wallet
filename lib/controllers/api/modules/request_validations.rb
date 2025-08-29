@@ -11,7 +11,7 @@ module Controller
 			def validateHeaders
 				h = parseHeaders
 				#logger.debug("Headers parsed: #{h}")
-				if !h['accept'].nil? && h['accept'] != 'application/json'
+				if !h['accept'].nil? && !['application/json','*/*'].include?(h['accept'])
 					@error = ValidationError.new("Request Validation Failed") 
 					@error.internalCode = "#{self.class::ERROR_PREFIX}-03"
 					@error.details = {headers: {accept: {error:"only application/json acceptable", value: h['accept']}}}

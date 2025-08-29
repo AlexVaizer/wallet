@@ -13,16 +13,15 @@ module Model
 				{ name: 'timeCreated', type: :time}
 			]
 		}
-		API_UPDATE_TIMEOUT = Model::API_UPDATE_TIMEOUT
 		fieldSet = DATA_MODEL[:fields].map { |e| Field.new(name: e[:name], type: e[:type]) }
 		DATA_MODEL_OBJ = Model::DataModel.new(tableName: DATA_MODEL[:tableName], idField: DATA_MODEL[:idField], fieldSet: fieldSet)
 		attr_accessor *fieldSet.map { |e| e.name }
 		def model
 			DATA_MODEL_OBJ
 		end
-		def	isValid
-			return @timeUpdated > (Time.now - API_UPDATE_TIMEOUT) if !@timeUpdated.nil?
-		end
+		# def	isValid
+		# 	return @timeUpdated > (Time.now - API_UPDATE_TIMEOUT) if !@timeUpdated.nil?
+		# end
 		def parseMonobankClientInfo(clientInfo,userId)
 			@clientId = clientInfo['clientId']
 			@name = clientInfo['name'] 

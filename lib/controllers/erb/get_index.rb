@@ -4,6 +4,7 @@ module Controller
 			SUCCESS_CODE = 200
 			SUCCESS_ERB = :index
 			CONTROLLER_ERROR_PREFIX = '01'
+			API_UPDATE_TIMEOUT = 10
 			attr_reader :user, :clientInfo, :accountsList, :jarsList, :requestedAccountId, :requestedAccount
 			def initVars
 				@token = nil
@@ -16,11 +17,12 @@ module Controller
 				@requestedAccount = nil
 			end
 			def getRequestedAccount
+				#logger.debug("params ID: #{@request}")
 				if @requestedAccountId = @request.params['id']
 					@requestedAccount = @accountsList.selectById(@requestedAccountId)
 					self.handleError("Account #{@requestedAccountId} was not found","#{CONTROLLER_ERROR_PREFIX}-01-01",404) if @requestedAccount.nil?
 					begin
-						@requestedAccount.getStatements({monoApiKey:@user.monoApiKey, ethApiKey:@user.ethApiKey, settings:$walletSettings})
+						@requestedAccount.getStatements({monoApiKey:@user.monoApiKey, ethApiKey:@user.ethApiKey, settings:@settings})
 					rescue => e
 						self.handleError(e.message,"#{CONTROLLER_ERROR_PREFIX}-01-07", 500)
 					end
@@ -56,8 +58,10 @@ module Controller
 			def getClientInfo
 				self.handleError("User was not defined","#{CONTROLLER_ERROR_PREFIX}-01-02",500) if !@user
 				@clientInfo = Model::ClientInfo.new({_id: @user._id}).getFromDb
-				logger.debug("ClientInfo validity: #{@clientInfo.isValid}")
-				if !@clientInfo.isValid
+				api_timeout = @settings.get("client.apiUpdateTimeoutSec") || API_UPDATE_TIMEOUT
+				isValid = @clientInfo.timeUpdated > (Time.now - api_timeout)
+				logger.debug("ClientInfo validity: #{isValid}")
+				if !isValid
 					self.getMonobankClientInfo
 					self.saveAllToDb
 				end
@@ -72,7 +76,6 @@ module Controller
 					@response.code = SUCCESS_CODE
 					@response.erb = SUCCESS_ERB
 					@response.success = true
-					logger.debug $walletSettings.inspect
 				rescue => e
 				 	logger.debug("Error: #{e.inspect}. Backtrace: #{e.backtrace.take(10)}")
 				 	raise e

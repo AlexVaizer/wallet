@@ -3,11 +3,12 @@ module Controller
 	include Logging
 	Setting = Struct.new(:_id, :value, keyword_init: true)
 	class Settings < Array 
+		include Logging
 		SETTINGS_TABLE_NAME = 'props-be'
-		ENV_VARS_LIST = ["WALLET_MONGO_STRING","WALLET_DB_NAME", "WALLET_DEBUG_MODE", "RACK_ENV"]
+		ENV_VARS_LIST = ["WALLET_MONGO_STRING","WALLET_DB_NAME"]
 		def readEnvVars
 			ENV_VARS_LIST.each do |v|
-				s = {_id: v, value: ENV[v]}
+				s = {_id: "env.#{v}", value: ENV[v]}
 				self.push(Setting.new(s))
 			end
 		end
@@ -15,16 +16,19 @@ module Controller
 			return self.map { |e| e.to_h }
 		end
 		def id(id)
-			self.find {|e| e._id == id}
-		end
-		def v(id) 
 			s = self.find {|e| e._id == id}
+			raise ArgumentError.new("Could not find setting by id: #{id}") if s.nil?
+			return s
+		end
+		def get(id) 
+			s = self.find {|e| e._id == id}
+			return nil if s.nil?
 			return s.value
 		end
 		def getFromDb
 			#self.clear
 			readEnvVars
-			client = Mongo::Client.new(self.id("WALLET_MONGO_STRING").value, database: self.id("WALLET_DB_NAME").value)
+			client = Mongo::Client.new(self.get("env.WALLET_MONGO_STRING"), database: self.get("env.WALLET_DB_NAME"))
 			coll = client[SETTINGS_TABLE_NAME]
 			req = {} 	
 			data = coll.find({}).to_a

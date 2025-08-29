@@ -11,11 +11,12 @@ module Controller
 			REQUIRED_PERMISSION = 'API_ADMIN'
 			include Logging
 			include Api::RequestValidations
-			attr_reader :response, :request, :protected, :token, :user, :modelName, :model, :id
-			def initialize(request, settings = nil)
+			attr_reader :response, :request, :protected, :token, :user, :modelName, :model, :id, :settings, :requiredPermission
+			def initialize(request)
 				@_objId = SecureRandom.hex(10)
+				@settings = Controller::Settings.new().getFromDb
 				logger.progname = "#{self.class}::#{@_objId}"
-				logger.level = settings.v("sinatra.debug_mode") if settings
+				logger.level = "debug" if @settings.get("sinatra.debug_mode") == true
 				@request = request
 				logger.info("Request: #{@request.request_method} #{@request.ip}#{@request.path_info}")
 				logger.debug("Request Params: #{@request.inspect}")	
@@ -60,6 +61,7 @@ module Controller
 				begin
 					run
 					@response = Api::SuccessResponse.new(success: true, status: self.class::SUCCESS_CODE, data: @model.to_h, headers: DEFAULT_HEADERS)
+					@response.headers["requiredPermission"] = @requiredPermission
 				rescue ValidationError, NotFoundError, AuthenticationError, AuthorizationError => e
 					logger.warn(e.inspect)
 					@response = ErrorResponse.new(success: false, status: e.class::HTTP_CODE, headers: DEFAULT_HEADERS, error: e.to_h)
