@@ -37,9 +37,6 @@ module Controller
 			def parsePath
 				path = @request.path_info.gsub(Api::API_PATH_PREFIX, "")
 				path = path.gsub(self.class::PATH_PREFIX,"").split("/")
-				logger.debug("111path: #{path}")
-				logger.debug("Api::API_PATH_PREFIX: #{Api::API_PATH_PREFIX}")
-				logger.debug("PATH_PREFIX: #{self.class::PATH_PREFIX}")
 				@modelName = path[0].to_sym
 				@id = path[1]
 			end
