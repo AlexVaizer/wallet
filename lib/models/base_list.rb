@@ -67,7 +67,7 @@ module Model
 				@page = page
 				#@sort = sort
 			ensure
-				client.close
+				client.close if client
 			end
 			@sort = params[:sort]
 			@size = pagedata['data'].size
@@ -92,7 +92,7 @@ module Model
 					#@list.map { |e| e.saveToDb }
 					data = collection.bulk_write(command,ordered:true)
 				ensure
-					client.close
+					client.close if client
 				end
 			else
 				logger.debug("#{self.class} List is empty, nothing to write")

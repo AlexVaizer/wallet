@@ -3,4 +3,4 @@
 *.DS_Store
 *.pid
 *.lock
-./services
+services

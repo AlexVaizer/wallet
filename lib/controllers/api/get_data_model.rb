@@ -17,18 +17,22 @@ module Controller
 			end
 			def run
 				validateRequest
-				client = Mongo::Client.new(Model::MONGO_STRING, database: Model::MONGO_DATABASE)
-				coll = client['props-fe']
-				if @modelName.empty?
-					req = {"_id" => /schema./} 	
-					data = coll.find(req).to_a
-					@model = {"content" => data}
-				else
-					@modelName = @modelName.gsub("/","")
-					req = {"_id" => "schema.#{@modelName}"}
-					logger.debug(req)
-					data = coll.find(req).first
-					@model = data
+				begin
+					client = Mongo::Client.new(Model::MONGO_STRING, database: Model::MONGO_DATABASE)
+					coll = client['props-fe']
+					if @modelName.empty?
+						req = {"_id" => /schema./} 	
+						data = coll.find(req).to_a
+						@model = {"content" => data}
+					else
+						@modelName = @modelName.gsub("/","")
+						req = {"_id" => "schema.#{@modelName}"}
+						logger.debug(req)
+						data = coll.find(req).first
+						@model = data
+					end
+				ensure
+					client.close if client
 				end
 			end
 		end

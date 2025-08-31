@@ -1,8 +1,4 @@
 #!/usr/bin/ruby
-
-#########################################################
-# => DEPENDENCIES										#
-#########################################################
 require 'bundler/setup'
 Bundler.require 
 require 'sinatra'

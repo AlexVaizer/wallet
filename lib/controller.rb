@@ -9,7 +9,7 @@ module Controller
 		ALLOWED_ENVS = [:development, :test, :production]
 		SERVICE_TEMPLATE_PATH = './lib/templates/wallet_service.erb'
 		NGINX_TEMPLATE_PATH = './lib/templates/nginx.erb'
-		SERVICES_DESTINATION_PATH = './services/'
+		SERVICES_DESTINATION_PATH = File.expand_path('~/services_for_sinatra')
 		CURRENT_FOLDER = `pwd`.chomp
 		SETTINGS_TABLE_NAME = 'props-be'
 		ENV_VARS_LIST = ["WALLET_MONGO_STRING","WALLET_DB_NAME", "RACK_ENV"]
@@ -22,26 +22,45 @@ module Controller
 		end
 
 		def self.setup_service(env_values)
-			puts "Setting up service for Sinatra"
-			puts "Saving file to #{SERVICES_DESTINATION_PATH}"
+			puts "================================================="
+			puts "====== Generating and saving files for Sinatra and nginx site to #{SERVICES_DESTINATION_PATH}"
 			@env_values = env_values
 			Dir.mkdir(File.expand_path(SERVICES_DESTINATION_PATH)) if !Dir.exist?(File.expand_path(SERVICES_DESTINATION_PATH))
 			service_file = "#{SERVICES_DESTINATION_PATH}/wallet.service"
 			service_settings = ERB.new(File.read(File.expand_path(SERVICE_TEMPLATE_PATH)))
 			out_file = File.new(File.expand_path("#{service_file}"), "w")
 			out_file.puts(service_settings.result(binding))
-			puts "File saved to #{service_file}"
-			
 			out_file.close
-			puts "File saved to #{service_file}."
-			puts "If you want to run sinatra on startup, please run 'sudo systemctl enable wallet'"
 			service_settings = ERB.new(File.read(File.expand_path(NGINX_TEMPLATE_PATH)))
-			nginx_file = "#{SERVICES_DESTINATION_PATH}/#{@env_values['domain']}"
+			nginx_file = File.join("#{SERVICES_DESTINATION_PATH}",@env_values['domain'])
 			out_file = File.new(nginx_file, "w")
 			out_file.puts(service_settings.result(binding))
 			out_file.close
-			puts "File saved to #{nginx_file}"
-			puts "You need to enable created nginx server: 'sudo ln -s /etc/nginx/sites-available/#{@env_values['domain']} /etc/nginx/sites-enabled  && sudo service nginx restart'"
+			puts "====== Saving the configs Finished! :ultra-fast-parrot:"
+			puts "====== Systemd service file: #{service_file}"
+			puts "====== Nginx site config: #{nginx_file}"
+			puts "================================================="
+			puts "== (PASSED) Phase2: Service Files Generation"
+			puts "================================================="
+			puts "== Phase3: Services enablement"
+			puts "== THIS PHASE MUST BE RUN MANUALLY"
+			puts "================================================="
+			puts "====== Uncomment wanted sections in nginx config:"
+			puts "nano #{File.expand_path('~')}/services_for_sinatra/#{@env_values['domain']}"
+			puts "====== Copy and link files to system directories:"
+			puts "sudo cp #{File.expand_path('~')}/services_for_sinatra/wallet.service /etc/systemd/system/"
+			puts "sudo cp #{File.expand_path('~')}/services_for_sinatra/#{@env_values['domain']} /etc/nginx/sites-available"
+			puts "sudo ln -s /etc/nginx/sites-available/#{@env_values['domain']} /etc/nginx/sites-enabled"
+			puts "================================================="
+			puts "====== In order to start services immediately:"
+			puts "sudo systemctl daemon-reload"
+			puts "sudo systemctl restart nginx"
+			puts "sudo systemctl start wallet"
+			puts "====== To enable autorun on server startup run:"
+			puts "sudo systemctl enable nginx"
+			puts "sudo systemctl enable wallet"
+			puts "====== After that Set Up is Completed!!! You should check if everything works :sherlock:"
+			puts "================================================="
 		end
 
 		def save_pid
@@ -88,14 +107,16 @@ module Controller
 		def getFromDb
 			#self.clear
 			readEnvVars
-			client = Mongo::Client.new(self.get("env.WALLET_MONGO_STRING"), database: self.get("env.WALLET_DB_NAME"))
-			coll = client[SETTINGS_TABLE_NAME]
-			req = {} 	
-			data = coll.find({}).to_a
-			data.each do |e|
-				self.push(Setting.new(e))
+			begin
+				client = Mongo::Client.new(self.get("env.WALLET_MONGO_STRING"), database: self.get("env.WALLET_DB_NAME"))
+				coll = client[SETTINGS_TABLE_NAME]
+				req = {} 	
+				data = coll.find({}).to_a
+				data.map { |e| self.push(Setting.new(e)) } 
+				return self
+			ensure
+				client.close if client
 			end
-			return self
 		end
 	end
 
