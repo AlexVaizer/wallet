@@ -1,13 +1,15 @@
 require File.expand_path('./lib.rb')
 values = {}
 puts "================================================="
-puts "== Phase1: DB Test"
+puts "= Sinatra Wallet Serice Setup script"
+puts "= To install dependencies check https://github.com/AlexVaizer/wallet/blob/master/README.md"
+puts "================================================="
+puts "=== Phase1: DB Test"
 puts "================================================="
 puts "====== Please enter Mongo DB connection URI. Must contain login/password"
 values['WALLET_MONGO_STRING'] = gets.chomp
 puts "====== Please enter Mongo Database name"
 values['WALLET_DB_NAME'] = gets.chomp
-puts "================================================="
 values['RACK_ENV'] = 'production'
 @s = Controller::Settings.new()
 @s.readVars(values)
@@ -15,9 +17,9 @@ puts "Trying to get settings from DB"
 @s.getFromDb
 puts "====== Next settingIds parsed from DB: #{@s.map {|e| e._id}}"
 puts "================================================="
-puts "== (PASSED) Phase1: DB Test"
+puts "=== (PASSED) Phase1: DB Test"
 puts "================================================="
-puts "== Phase2: (optional) Service Files Generation"
+puts "=== Phase2: (optional) Service Files Generation"
 puts "================================================="
 puts "====== Do you want to set up service files for wallet and nginx? [y/n]"
 service_setup = gets.chomp
