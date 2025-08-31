@@ -23,33 +23,35 @@ module Controller
 
 		def self.setup_service(env_values)
 			puts "Setting up service for Sinatra"
-			puts "Saving file to #{SERVICE_DESTINATION_PATH}"
+			puts "Saving file to #{SERVICES_DESTINATION_PATH}"
 			@env_values = env_values
-			Dir.mkdir(SERVICES_DESTINATION_PATH)
+			Dir.mkdir(File.expand_path(SERVICES_DESTINATION_PATH)) if !Dir.exist?(File.expand_path(SERVICES_DESTINATION_PATH))
+			service_file = "#{SERVICES_DESTINATION_PATH}/wallet.service"
 			service_settings = ERB.new(File.read(File.expand_path(SERVICE_TEMPLATE_PATH)))
-			out_file = File.new(File.expand_path("#{SERVICES_DESTINATION_PATH}/wallet.service"), "w")
+			out_file = File.new(File.expand_path("#{service_file}"), "w")
 			out_file.puts(service_settings.result(binding))
-			service_file = out_file.absolute_path
+			puts "File saved to #{service_file}"
+			
 			out_file.close
 			puts "File saved to #{service_file}."
 			puts "If you want to run sinatra on startup, please run 'sudo systemctl enable wallet'"
 			service_settings = ERB.new(File.read(File.expand_path(NGINX_TEMPLATE_PATH)))
-			out_file = File.new("#{SERVICES_DESTINATION_PATH}/#{@env_values['domain']}", "w")
+			nginx_file = "#{SERVICES_DESTINATION_PATH}/#{@env_values['domain']}"
+			out_file = File.new(nginx_file, "w")
 			out_file.puts(service_settings.result(binding))
-			nginx_file = out_file.absolute_path
 			out_file.close
 			puts "File saved to #{nginx_file}"
 			puts "You need to enable created nginx server: 'sudo ln -s /etc/nginx/sites-available/#{@env_values['domain']} /etc/nginx/sites-enabled  && sudo service nginx restart'"
 		end
 
-		def self.save_pid
+		def save_pid
 			pid = Process.pid
 			pidfile_path = File.join(CURRENT_FOLDER,"wallet.pid")
 			pidfile = File.new(pidfile_path, "w")
 			pidfile.puts(pid)
 			pidfile.close
 		end
-		def readEnvVars(array = nil) 
+		def readEnvVars() 
 			ENV_VARS_LIST.each do |v|
 				if !(ENV[v].nil? || ENV[v].empty?)
 					s = {_id: "env.#{v}", value: ENV[v]}
@@ -66,15 +68,22 @@ module Controller
 		def to_a
 			return self.map { |e| e.to_h }
 		end
-		def id(id)
-			s = self.find {|e| e._id == id}
-			raise ArgumentError.new("Could not find setting by id: #{id}") if s.nil?
+
+		def id(string)
+			s = self.find {|e| e._id == string}
+			raise ArgumentError.new("Could not find setting by id: #{string}") if s.nil?
 			return s
 		end
-		def get(id) 
-			s = self.find {|e| e._id == id}
+		def get(string) 
+			s = self.find {|e| e._id == string}
 			return nil if s.nil?
 			return s.value
+		end
+		def set(string1, string2) 
+			s = {_id: string1, value: string2}
+			obj = Setting.new(s)
+			self.delete_if { |e| e._id == string1} 
+			self.push(obj)
 		end
 		def getFromDb
 			#self.clear

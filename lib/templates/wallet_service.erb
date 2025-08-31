@@ -2,7 +2,6 @@
 Description=Sinatra Wallet service
 After=network.target
 StartLimitIntervalSec=0
-
 [Service]
 Type=simple
 User=root
@@ -12,10 +11,6 @@ Environment=<%= "'WALLET_DB_NAME=#{@env_values['WALLET_DB_NAME']}'" %>
 WorkingDirectory=<%=Controller::Settings::CURRENT_FOLDER%>
 ExecStart=<%=File.join(Controller::Settings::CURRENT_FOLDER, 'wallet.rb')%>
 ExecStop=<%=File.join(Controller::Settings::CURRENT_FOLDER,'stop.rb')%>
-
-
 SyslogIdentifier=wallet.service
-
-
 [Install]
 WantedBy=default.target

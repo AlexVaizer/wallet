@@ -12,7 +12,6 @@ require File.expand_path('./lib.rb')
 #########################################################
 $walletSettings = Controller::Settings.new().getFromDb
 disable :logging
-$walletSettings.validate_env($walletSettings.get("sinatra.env").to_sym)
 $walletSettings.save_pid
 	set :environment, $walletSettings.get("sinatra.env")
 	set :port, $walletSettings.get("sinatra.port")
