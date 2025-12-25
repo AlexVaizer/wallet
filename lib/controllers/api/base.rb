@@ -12,7 +12,7 @@ module Controllers
 			include Logging
 			include Api::RequestValidations
 			attr_reader :response, :request, :protected, :token, :user, :modelName, :model, :id, :settings, :requiredPermission
-			def initialize(request, path_params)
+			def initialize(request)
 				@_objId = SecureRandom.hex(10)
 				@settings = Controllers::Settings.new().getFromDb
 				logger.progname = "#{self.class}::#{@_objId}"

@@ -4,7 +4,7 @@ module Controllers
 			SUCCESS_CODE = 200
 			SUCCESS_ERB = :index
 			CONTROLLER_ERROR_PREFIX = '01'
-			API_UPDATE_TIMEOUT = 10
+			API_UPDATE_TIMEOUT = 300
 			attr_reader :user, :clientInfo, :accountsList, :jarsList, :requestedAccountId, :requestedAccount
 			def initVars
 				@token = nil
@@ -58,7 +58,7 @@ module Controllers
 			def getClientInfo
 				self.handleError("User was not defined","#{CONTROLLER_ERROR_PREFIX}-01-02",500) if !@user
 				@clientInfo = Model::ClientInfo.new({_id: @user._id}).getFromDb
-				api_timeout = @settings.get("client.apiUpdateTimeoutSec") || API_UPDATE_TIMEOUT
+				api_timeout = @settings.get("client.updateTimeoutSeconds") || API_UPDATE_TIMEOUT
 				isValid = @clientInfo.timeUpdated > (Time.now - api_timeout)
 				logger.debug("ClientInfo validity: #{isValid}")
 				if !isValid

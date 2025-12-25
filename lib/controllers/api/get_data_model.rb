@@ -2,7 +2,7 @@ module Controllers
 	module Api
 		class Schema < Base
 			ERROR_PREFIX = "#{Controllers::Api::CLASS_ERROR_CODES['Schema']}"
-			PATH_PREFIX = "customer/info/schema"
+			PATH_PREFIX = "customer/schema"
 			REQUIRED_PERMISSION = "API_CUSTOMER"
 			HAS_REQUEST_BODY = false
 			HAS_RESPONSE_BODY = true
