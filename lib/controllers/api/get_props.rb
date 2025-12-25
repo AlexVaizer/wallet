@@ -1,7 +1,7 @@
-module Controller
+module Controllers
 	module Api
 		class GetProps < Base
-			ERROR_PREFIX = "#{Controller::Api::CLASS_ERROR_CODES['GetProps']}"
+			ERROR_PREFIX = "#{Controllers::Api::CLASS_ERROR_CODES['GetProps']}"
 			REQUIRED_PERMISSION = "API_ADMIN"
 			HAS_REQUEST_BODY = false
 			HAS_RESPONSE_BODY = true
@@ -13,7 +13,7 @@ module Controller
 			def parsePath; end
 			def run
 				validateRequest
-				s = Controller::Settings.new().getFromDb
+				s = Controllers::Settings.new().getFromDb
 				@model = {"content" => s.to_a}
 			end
 		end
@@ -21,7 +21,7 @@ module Controller
 			REQUIRED_PERMISSION = "API_ADMIN"
 			HAS_REQUEST_BODY = false
 			HAS_RESPONSE_BODY = true
-			ERROR_PREFIX = "#{Controller::Api::CLASS_ERROR_CODES['GetProp']}"
+			ERROR_PREFIX = "#{Controllers::Api::CLASS_ERROR_CODES['GetProp']}"
 			PATH_PREFIX = 'admin/'
 			def validateRequest
 				validateHeaders
@@ -29,7 +29,7 @@ module Controller
 			end
 			def run
 				validateRequest
-				s = Controller::Settings.new().getFromDb
+				s = Controllers::Settings.new().getFromDb
 				@model = s.id(@id)
 			end
 		end

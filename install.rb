@@ -11,7 +11,7 @@ values['WALLET_MONGO_STRING'] = gets.chomp
 puts "====== Please enter Mongo Database name"
 values['WALLET_DB_NAME'] = gets.chomp
 values['RACK_ENV'] = 'production'
-@s = Controller::Settings.new()
+@s = Controllers::Settings.new()
 @s.readVars(values)
 puts "Trying to get settings from DB"
 @s.getFromDb
@@ -40,12 +40,12 @@ if service_setup == 'y' then
 
 	values['sinatra_ip'] = @s.get("sinatra.ip") || "127.0.0.1"
 	values['sinatra_port'] = @s.get("sinatra.port") || 8080
-	Controller::Settings.setup_service(values)
+	Controllers::Settings.setup_service(values)
 else
 	puts "====== Okay, then no files generation, so we assume you are using sinatra locally then :shrug:"
 	puts "====== Command to run server in local dev mode:"
 	env_values_string = "RACK_ENV='production' WALLET_MONGO_STRING=#{@s.get('env.WALLET_MONGO_STRING')} WALLET_DB_NAME=#{@s.get('env.WALLET_DB_NAME')}"
-	puts "#{env_values_string} ruby #{Controller::Settings::CURRENT_FOLDER}/wallet.rb"
+	puts "#{env_values_string} ruby #{Controllers::Settings::CURRENT_FOLDER}/wallet.rb"
 
 end
 

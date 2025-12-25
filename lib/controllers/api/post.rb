@@ -1,8 +1,8 @@
-module Controller
+module Controllers
 	module Api
 		class Post < Base
 			SUCCESS_CODE = 201
-			ERROR_PREFIX = Controller::Api::CLASS_ERROR_CODES['Post']
+			ERROR_PREFIX = Controllers::Api::CLASS_ERROR_CODES['Post']
 			REQUIRED_PERMISSION = "API_ADMIN"
 			HAS_REQUEST_BODY = true
 			HAS_RESPONSE_BODY = true

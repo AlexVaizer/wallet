@@ -1,7 +1,7 @@
-module Controller
+module Controllers
 	module Api
 		class Put < Base
-			ERROR_PREFIX = Controller::Api::CLASS_ERROR_CODES['Put']
+			ERROR_PREFIX = Controllers::Api::CLASS_ERROR_CODES['Put']
 			PATH_PREFIX = 'admin/'
 			def run
 				validateRequest

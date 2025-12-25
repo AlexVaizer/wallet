@@ -1,4 +1,4 @@
-module Controller
+module Controllers
 	module Erb
 		class GetIndex < Base
 			SUCCESS_CODE = 200

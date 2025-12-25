@@ -1,4 +1,4 @@
-module Controller
+module Controllers
 	module Erb
 		class Login < Base
 			SUCCESS_CODE = 302

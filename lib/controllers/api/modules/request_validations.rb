@@ -1,4 +1,4 @@
-module Controller
+module Controllers
 	module Api	
 		module RequestValidations
 			def parseHeaders
@@ -30,7 +30,7 @@ module Controller
 			end
 			def authorize
 				if @protected
-					logger.debug("Accessing protected Controller. Parsing Token: #{@request.cookies['token'][0..6] if @request.cookies['token']}..#{@request.cookies['token'][-6..-1] if @request.cookies['token']}")
+					logger.debug("Accessing protected Controllers. Parsing Token: #{@request.cookies['token'][0..6] if @request.cookies['token']}..#{@request.cookies['token'][-6..-1] if @request.cookies['token']}")
 					parseToken
 					if @requiredPermission
 						logger.debug("Checking User's Permissions for '#{@requiredPermission}' role")

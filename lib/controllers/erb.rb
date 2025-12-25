@@ -1,4 +1,4 @@
-module Controller
+module Controllers
 	module Erb
 		MODULE_ERROR_CODES = '02'
 		require File.expand_path(File.join(__dir__,"erb/base.rb"))

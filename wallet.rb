@@ -6,7 +6,7 @@ require "sinatra/basic_auth"
 require "sinatra/cookies"
 require File.expand_path('./lib.rb')
 #########################################################
-$walletSettings = Controller::Settings.new().getFromDb
+$walletSettings = Controllers::Settings.new().getFromDb
 disable :logging
 $walletSettings.save_pid
 	set :environment, $walletSettings.get("sinatra.env")
@@ -24,7 +24,7 @@ $walletSettings.save_pid
 	end
 
 	get '/' do
-		@c = Controller::Erb::GetIndex.new(request)
+		@c = Controllers::Erb::GetIndex.new(request)
 		@title =  "#{@c.requestedAccount.maskedPan} - #{@title}" if @c.requestedAccount
 		@resp = @c.response
 		status @resp.code
@@ -33,7 +33,7 @@ $walletSettings.save_pid
 	end
 
 	post '/login' do 
-		@c = Controller::Erb::Login.new(request)
+		@c = Controllers::Erb::Login.new(request)
 		if @c.response.success
 			response.set_cookie(:token, :value => @c.token.jwt, :expires => Time.at(@c.token.exp))
 			#redirect to '/'

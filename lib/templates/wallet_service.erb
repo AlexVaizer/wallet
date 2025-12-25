@@ -8,9 +8,9 @@ User=root
 Environment=<%= "'RACK_ENV=production'" %>
 Environment=<%= "'WALLET_MONGO_STRING=#{@env_values['WALLET_MONGO_STRING']}'" %>
 Environment=<%= "'WALLET_DB_NAME=#{@env_values['WALLET_DB_NAME']}'" %>
-WorkingDirectory=<%=Controller::Settings::CURRENT_FOLDER%>
-ExecStart=<%=File.join(Controller::Settings::CURRENT_FOLDER, 'wallet.rb')%>
-ExecStop=<%=File.join(Controller::Settings::CURRENT_FOLDER,'stop.rb')%>
+WorkingDirectory=<%=Controllers::Settings::CURRENT_FOLDER%>
+ExecStart=<%=File.join(Controllers::Settings::CURRENT_FOLDER, 'wallet.rb')%>
+ExecStop=<%=File.join(Controllers::Settings::CURRENT_FOLDER,'stop.rb')%>
 SyslogIdentifier=wallet.service
 [Install]
 WantedBy=default.target

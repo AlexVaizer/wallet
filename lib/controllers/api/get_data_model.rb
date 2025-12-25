@@ -1,7 +1,7 @@
-module Controller
+module Controllers
 	module Api
-		class GetDataModel < Base
-			ERROR_PREFIX = "#{Controller::Api::CLASS_ERROR_CODES['GetDataModel']}"
+		class Schema < Base
+			ERROR_PREFIX = "#{Controllers::Api::CLASS_ERROR_CODES['Schema']}"
 			PATH_PREFIX = "customer/info/schema"
 			REQUIRED_PERMISSION = "API_CUSTOMER"
 			HAS_REQUEST_BODY = false

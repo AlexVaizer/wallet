@@ -1,7 +1,5 @@
-module Controller
-	require 'securerandom'
-	include Logging
-	Setting = Struct.new(:_id, :value, keyword_init: true)
+module Controllers
+Setting = Struct.new(:_id, :value, keyword_init: true)
 	class Settings < Array 
 		require 'erb'
 		require 'openssl'
@@ -12,7 +10,7 @@ module Controller
 		SERVICES_DESTINATION_PATH = File.expand_path('~/services_for_sinatra')
 		CURRENT_FOLDER = `pwd`.chomp
 		SETTINGS_TABLE_NAME = 'props-be'
-		ENV_VARS_LIST = ["WALLET_MONGO_STRING","WALLET_DB_NAME", "RACK_ENV"]
+		ENV_VARS_LIST = ["WALLET_MONGO_STRING","WALLET_DB_NAME"]
 		def self.validate_env(env)
 			if !ALLOWED_ENVS.include?(env) then 
 				raise ArgumentError.new("Environment should be: #{ALLOWED_ENVS.to_s}")
@@ -116,32 +114,8 @@ module Controller
 				data.map { |e| self.push(Setting.new(e)) } 
 				return self
 			ensure
-				client.close if client
+				client.close # if client
 			end
 		end
 	end
-
-	class Response
-		attr_accessor :erb, :code, :success, :errorCode, :errorMessage, :cookie
-		def initialize(options = {})
-			@erb = options[:erb] || :errors
-			@code = options[:code] || 500
-			@success = options[:success] || false
-			@errorCode = nil
-			@errorMessage = nil
-			@cookie = nil
-		end
-		def to_h
-			response = {
-				:success => @success,
-				:code => @code,
-				:errorCode => @errorCode,
-				:errorMessage => @errorMessage,
-				:erb => @erb,
-				:cookie => @cookie
-			}
-		end
-	end
-	require File.expand_path(File.join(__dir__,"/controllers/erb.rb"))
-	require File.expand_path(File.join(__dir__,"/controllers/api.rb"))
 end

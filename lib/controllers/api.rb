@@ -1,4 +1,4 @@
-module Controller
+module Controllers
 	module Api
 		MODULE_ERROR_CODE = '01'
 		CLASS_ERROR_CODES = {
@@ -11,8 +11,8 @@ module Controller
 			'Post' => "#{MODULE_ERROR_CODE}-06",
 			'GetProps' => "#{MODULE_ERROR_CODE}-07",
 			'GetProp' => "#{MODULE_ERROR_CODE}-08",
-			'GetDataModel' => "#{MODULE_ERROR_CODE}-09",
-			'GetDataModels' => "#{MODULE_ERROR_CODE}-10"
+			'Schema' => "#{MODULE_ERROR_CODE}-09",
+			'Schemas' => "#{MODULE_ERROR_CODE}-10"
 		}
 		API_PATH_PREFIX = '/api/'
 		ErrorResponse = Struct.new(:success, :status, :error, :headers, keyword_init: true)

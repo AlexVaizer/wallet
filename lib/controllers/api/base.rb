@@ -1,7 +1,7 @@
-module Controller
+module Controllers
 	module Api	
 		class Base
-			ERROR_PREFIX = "#{Controller::Api::CLASS_ERROR_CODES['Base']}"
+			ERROR_PREFIX = "#{Controllers::Api::CLASS_ERROR_CODES['Base']}"
 			SUCCESS_CODE = 200
 			DEFAULT_HEADERS = {
 				"Content-Type" => "application/json"
@@ -12,9 +12,9 @@ module Controller
 			include Logging
 			include Api::RequestValidations
 			attr_reader :response, :request, :protected, :token, :user, :modelName, :model, :id, :settings, :requiredPermission
-			def initialize(request)
+			def initialize(request, path_params)
 				@_objId = SecureRandom.hex(10)
-				@settings = Controller::Settings.new().getFromDb
+				@settings = Controllers::Settings.new().getFromDb
 				logger.progname = "#{self.class}::#{@_objId}"
 				logger.level = "debug" if @settings.get("sinatra.debug_mode") == true
 				@request = request

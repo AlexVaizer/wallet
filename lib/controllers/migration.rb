@@ -1,4 +1,4 @@
-# module Controller
+# module Controllers
 # 	class Migration
 # 		MODULE_ERROR_CODES = '00'
 # 		require 'json'

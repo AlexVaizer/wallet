@@ -1,8 +1,8 @@
-module Controller
+module Controllers
 	module Api
 		class GetList < Base
 			DEFAULT_PAGE_SIZE = 100
-			ERROR_PREFIX = Controller::Api::CLASS_ERROR_CODES['GetList']
+			ERROR_PREFIX = Controllers::Api::CLASS_ERROR_CODES['GetList']
 			HAS_REQUEST_BODY = false
 			HAS_RESPONSE_BODY = true
 			PATH_PREFIX = 'admin/'

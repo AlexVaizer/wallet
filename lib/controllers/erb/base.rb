@@ -1,4 +1,4 @@
-module Controller
+module Controllers
 	module Erb
 		require 'securerandom'
 		class Response
@@ -28,7 +28,7 @@ module Controller
 			attr_reader :response, :request, :protected, :token
 			def initialize(request, options = {})
 				@_objId = SecureRandom.hex(10)
-				@settings = Controller::Settings.new().getFromDb
+				@settings = Controllers::Settings.new().getFromDb
 				logger.progname = "#{self.class}::#{@_objId}"
 				logger.level = 'debug' if @settings.get("sinatra.debug_mode")
 				@request = request
@@ -45,7 +45,7 @@ module Controller
 			end
 			def checkAuth
 				if @protected
-					logger.debug("Accessing protected Controller. Parsing Token: #{@request.cookies['token'][0..6] if @request.cookies['token']}..#{@request.cookies['token'][-6..-1] if @request.cookies['token']}")
+					logger.debug("Accessing protected Controllers. Parsing Token: #{@request.cookies['token'][0..6] if @request.cookies['token']}..#{@request.cookies['token'][-6..-1] if @request.cookies['token']}")
 					begin
 						self.parseToken
 					rescue

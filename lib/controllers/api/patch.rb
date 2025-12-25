@@ -1,7 +1,7 @@
-module Controller
+module Controllers
 	module Api
 		class Patch < Base
-			ERROR_PREFIX = Controller::Api::CLASS_ERROR_CODES['Patch']
+			ERROR_PREFIX = Controllers::Api::CLASS_ERROR_CODES['Patch']
 			HAS_REQUEST_BODY = true
 			HAS_RESPONSE_BODY = true
 			REQUIRED_PERMISSION = "API_ADMIN"
