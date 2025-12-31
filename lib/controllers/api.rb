@@ -12,7 +12,8 @@ module Controllers
 			'GetProps' => "#{MODULE_ERROR_CODE}-07",
 			'GetProp' => "#{MODULE_ERROR_CODE}-08",
 			'Schema' => "#{MODULE_ERROR_CODE}-09",
-			'Schemas' => "#{MODULE_ERROR_CODE}-10"
+			'Schemas' => "#{MODULE_ERROR_CODE}-10",
+			'Sync' => "#{MODULE_ERROR_CODE}-11"
 		}
 		API_PATH_PREFIX = '/api/'
 		ErrorResponse = Struct.new(:success, :status, :error, :headers, keyword_init: true)
@@ -60,6 +61,7 @@ module Controllers
 		require File.expand_path(File.join(__dir__,"/api/get_list.rb"))
 		require File.expand_path(File.join(__dir__,"/api/get_data_model.rb"))
 		require File.expand_path(File.join(__dir__,"/api/get_props.rb"))
+		require File.expand_path(File.join(__dir__,"/api/mono_sync.rb"))
 		require File.expand_path(File.join(__dir__,"/api/delete.rb"))
 		require File.expand_path(File.join(__dir__,"/api/patch.rb"))
 		require File.expand_path(File.join(__dir__,"/api/put.rb"))

@@ -75,6 +75,10 @@ module Wallet
 				REQUIRED_PERMISSION = 'API_CUSTOMER'
 				PATH_PREFIX = 'customer/'
 			end
+			class MonoSync < Controllers::Api::MonoSync 
+				REQUIRED_PERMISSION = 'API_CUSTOMER'
+				PATH_PREFIX = 'customer/'
+			end
 		end
 	end
 	def self.contructClassFromCapitalizedStrings(array = [])
@@ -105,6 +109,7 @@ module Wallet
 			when 'customer'
 				subModClassName = "Customer"
 				methodClassName = "Schema" if modelName == "schema"
+				methodClassName = "MonoSync" if modelName == "mono-sync"
 			else
 				return c = Wallet::Api::UnknownController.new(sinatraRequest).run!
 			end

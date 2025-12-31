@@ -64,7 +64,7 @@ module Controllers
 				rescue => e
 					error = InternalError.new("Internal Error")
 					logger.error(e.inspect)
-					error.internalCode = "#{self.class::ERROR_PREFIX}-0-0"
+					error.internalCode = "#{self.class::ERROR_PREFIX}-0"
 					error.details = e.inspect
 					logger.error(e.inspect)
 					logger.error(e.backtrace)
