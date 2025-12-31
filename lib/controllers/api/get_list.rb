@@ -35,15 +35,14 @@ module Controllers
 			def validateParams
 				parseParams
 			end
-			def validateRequest
-				validateHeaders
-				authorize
+			def dbAction
+				@model.getFromDb(@page,@size,{},@sort)
 			end
 			def run
 				validateRequest
 				parseParams
 				getBySymbol
-				@model.getFromDb(@page,@size,{},@sort)
+				dbAction
 			end
 		end
 	end

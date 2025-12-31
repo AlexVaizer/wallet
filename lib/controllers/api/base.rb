@@ -24,7 +24,7 @@ module Controllers
 					logger.debug(@modelName)
 					@model = Model.getBySymbol(@modelName)
 				rescue
-					@error = NotFoundError.new("@modelName")
+					@error = NotFoundError.new(@modelName)
 					@error.internalCode = "#{self.class::ERROR_PREFIX}-05"
 					@error.details = {value: @modelName}
 					raise @error
@@ -40,9 +40,7 @@ module Controllers
 				self.parsePath
 				@token = nil
 			end
-			def run
-				validateRequest
-				self.getBySymbol
+			def dbAction
 				@model._id = @id
 				@model.getFromDb
 				if @model.error
@@ -51,6 +49,11 @@ module Controllers
 					@error.details = {params: {id: @id}}
 					raise @error 
 				end
+			end
+			def run
+				validateRequest
+				self.getBySymbol
+				dbAction
 			end
 			def run!
 				begin

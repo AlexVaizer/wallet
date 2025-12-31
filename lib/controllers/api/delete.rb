@@ -5,13 +5,7 @@ module Controllers
 			HAS_REQUEST_BODY = false # TODO
 			HAS_RESPONSE_BODY = false # TODO
 			ERROR_PREFIX = "#{Controllers::Api::CLASS_ERROR_CODES['Delete']}"
-			def validateRequest
-				validateHeaders
-				authorize
-			end
-			def run
-				validateRequest
-				self.getBySymbol
+			def dbAction
 				@model._id = @id
 				@model.getFromDb
 				if @model.error
@@ -21,7 +15,6 @@ module Controllers
 					raise @error
 				end
 				@model.deleteFromDb
-				#@response.data = {}
 			end
 		end
 	end

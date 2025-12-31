@@ -5,10 +5,6 @@ module Controllers
 			HAS_REQUEST_BODY = false
 			HAS_RESPONSE_BODY = true
 			SUCCESS_CODE = 200
-			def validateRequest
-				validateHeaders
-				authorize
-			end
 			def parsePath; end
 			def run
 				validateRequest

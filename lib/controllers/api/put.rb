@@ -6,9 +6,7 @@ module Controllers
 			HAS_REQUEST_BODY = true
 			HAS_RESPONSE_BODY = true
 			# PATH_PREFIX = 'admin/'
-			def run
-				validateRequest
-				self.getBySymbol
+			def dbAction
 				@model._id = @id
 				@model.getFromDb
 				if @model.error
@@ -25,7 +23,6 @@ module Controllers
 					error.internalCode = "#{self.class::ERROR_PREFIX}-08"
 					raise error
 				end
-				@model._id = @id
 				@model.saveToDb
 			end
 		end

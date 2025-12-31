@@ -10,9 +10,7 @@ module Controllers
 				path = path.gsub(self.class::PATH_PREFIX,"")
 				@modelName = path.to_sym
 			end
-			def run
-				validateRequest
-				self.getBySymbol
+			def dbAction
 				logger.debug("Parsing Payload: #{@requestPayload}")
 				@model.parseOptions(@requestPayload)
 				if @model.error

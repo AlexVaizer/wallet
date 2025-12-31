@@ -50,10 +50,6 @@ module Controllers
 				@accountsList = Model::AccountsList.new().getFromDb(0,15,{userId: @user._id})
 				@jarsList = Model::JarsList.new().getFromDb(0,15,{userId: @user._id})
 			end
-			def validateRequest
-				validateHeaders
-				authorize
-			end
 			def run
 				validateRequest
 				self.getClientInfo

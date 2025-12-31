@@ -5,9 +5,7 @@ module Controllers
 			HAS_REQUEST_BODY = true
 			HAS_RESPONSE_BODY = true
 			SUCCESS_CODE = 200
-			def run
-				validateRequest
-				self.getBySymbol
+			def dbAction
 				@model._id = @id
 				@model.getFromDb
 				if @model.error

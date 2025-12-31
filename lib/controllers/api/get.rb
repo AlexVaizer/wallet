@@ -5,10 +5,6 @@ module Controllers
 			SUCCESS_CODE = 200
 			HAS_REQUEST_BODY = false
 			HAS_RESPONSE_BODY = true
-			def validateRequest
-				validateHeaders
-				authorize
-			end
 		end
 	end
 end

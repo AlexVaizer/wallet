@@ -64,7 +64,7 @@ module Controllers
 			def validateRequest
 				validateHeaders
 				authorize
-				validatePayload
+				validatePayload if self.class::HAS_REQUEST_BODY
 			end
 		end
 	end
