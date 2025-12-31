@@ -12,19 +12,18 @@ module Controllers
 			def parsePath
 				@modelName = @request.path_info.gsub(Api::API_PATH_PREFIX, "")
 				@modelName = @modelName.gsub(self.class::PATH_PREFIX,"")
-				logger.debug("model name: #{@modelName}")
 			end
 			def run
 				validateRequest
 				begin
 					client = Mongo::Client.new(Model::MONGO_STRING, database: Model::MONGO_DATABASE)
 					coll = client['props-fe']
-					@id = @modelName.split("/").last
-					if @id.nil?
-						req = {} 	
+					if @modelName == 'schema' || @modelName == 'schema/'
+						req = {}
 						data = coll.find(req).to_a
 						@model = {"content" => data}
 					else
+						@id = @modelName.split("/").last
 						req = {"_id" => "schema.#{@id}"}
 						puts(req)
 						data = coll.find(req).first

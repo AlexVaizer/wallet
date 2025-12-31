@@ -6,6 +6,21 @@ require File.expand_path('./lib/controllers.rb')
 
 module Wallet
 	module Api 
+		class UnknownController < Controllers::Api::Base
+			REQUIRED_PERMISSION = 'API_CUSTOMER' 
+			ERROR_PREFIX = '0'
+			def parsePath
+				@modelName = nil
+				@id = nil
+			end
+			def run
+				#validateRequest
+				@error = Controllers::Api::NotFoundError.new("Not Found")
+				@error.internalCode = "#{self.class::ERROR_PREFIX}-03"
+				@error.details = {path: @request.path_info}
+				raise @error 
+			end
+		end
 		module Admin
 			# Initiate all controllers 
   			CONTROLLERS = [:Post, :Get, :GetList, :Patch, :Put, :Delete, :GetProps, :GetProp]
@@ -66,9 +81,7 @@ module Wallet
 		raise ArgumentError.new("Cannot Construct object from empty array or elements") if array.empty? || array.include?(nil)
 		str = array.join("::")
 		# needs to be refactored as raises error when module unknown
-		cls = Object.const_get(str)
-		puts cls
-		return cls
+		return cls = Object.const_get(str)
 	end
 	MockSinReq = Struct.new(:path_info, :request_method, :ip, keyword_init: true)
 	def self.constructor(sinatraRequest = MockSinReq.new())
@@ -93,14 +106,13 @@ module Wallet
 				subModClassName = "Customer"
 				methodClassName = "Schema" if modelName == "schema"
 			else
-				subModClassName = subMod.capitalize
+				return c = Wallet::Api::UnknownController.new(sinatraRequest).run!
 			end
 		else
 			modClassName = nil
 			raise StandardError.new("unknown module") if modClassName.nil?  #won't hit it for now as sinatra proxies only /api/* to Wallet
 		end
 		methodClassName = "GetList" if id.nil? && methodClassName == "Get"
-		#construct: pass sinatraRequest to controllers as args
 		return Wallet.contructClassFromCapitalizedStrings([prefix,modClassName,subModClassName,methodClassName]).new(sinatraRequest)
 	end
 end

@@ -11,7 +11,7 @@ module Controllers
 				@_objId = SecureRandom.hex(10)
 				@settings = Controllers::Settings.new().getFromDb
 				logger.progname = "#{self.class}::#{@_objId}"
-				logger.level = "debug" if @settings.get("sinatra.debug_mode") == true
+				logger.level = "debug" if @settings.get("sinatra.debug_mode")
 				@request = request
 				logger.info("Request: #{@request.request_method} #{@request.ip}#{@request.path_info}")
 				#logger.debug("Request Params: #{@request.inspect}")	
@@ -60,18 +60,19 @@ module Controllers
 				rescue ValidationError, NotFoundError, AuthenticationError, AuthorizationError => e
 					logger.warn(e.inspect)
 					@response = ErrorResponse.new(success: false, status: e.class::HTTP_CODE, headers: DEFAULT_HEADERS, error: e.to_h)
-					logger.debug(e.backtrace)
+					#logger.debug(e.backtrace)
 				rescue => e
-					error = InternalError.new("")
+					error = InternalError.new("Internal Error")
+					logger.error(e.inspect)
 					error.internalCode = "#{self.class::ERROR_PREFIX}-0-0"
 					error.details = e.inspect
 					logger.error(e.inspect)
 					logger.error(e.backtrace)
 					@response = Api::ErrorResponse.new(success: false, status: error.class::HTTP_CODE, headers: DEFAULT_HEADERS, error: error.to_h)
-					logger.debug(@response.inspect)
 					logger.error(e.backtrace)
 				ensure
-					logger.info("#{@response.class} Code: #{response.status}")
+					logger.debug(@response.inspect)
+					logger.info("#{@response.class} Code: #{@response.status}")
 					return self
 				end
 			end
