@@ -24,7 +24,19 @@ module Wallet
 			#class Patch < Controllers::Api::Patch ;end
 			#class Put < Controllers::Api::Put ;end
 			#class Delete < Controllers::Api::Delete ;end
-			#class Get < Controllers::Api::Get ;end
+			class Get < Controllers::Api::Get 
+				REQUIRED_PERMISSION = 'API_CUSTOMER'
+				PATH_PREFIX = 'customer/'
+				def run
+					super
+					if @user._id != @model.userId
+						@error = Controllers::Api::NotFoundError.new("Not Found")
+						@error.internalCode = "#{self.class::ERROR_PREFIX}-03"
+						@error.details = {params: {id: @id}}
+						raise @error
+					end
+				end
+			end
 			
 			class GetList < Controllers::Api::GetList
 				REQUIRED_PERMISSION = 'API_CUSTOMER'

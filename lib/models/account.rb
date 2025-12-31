@@ -38,7 +38,7 @@ module Model
 				maskedPan = account['maskedPan'].first
 			end
 			ps_prefix = PAYMENT_SYSTEMS[maskedPan[0]]
-			@_id = account['id']
+			@_id = "#{account['id']}_#{userId}"
 			@balance = account['balance'].to_f/100
 			@balanceUsd = 0
 			@currencyCode = DataFactory::CURRENCIES[account['currencyCode'].to_s]
@@ -59,7 +59,7 @@ module Model
 			@balance = bal_eth
 			@balanceUsd = bal_usd
 			@ethUsdRate = last_price['ethusd'].to_f
-			@_id = account['account']
+			@_id = "#{account['id']}_#{userId}"
 			@maskedPanFull = "#{account['account'][0..5]}..#{account['account'][-6..-1]}"
 			@userId = userId
 			return true
@@ -105,7 +105,7 @@ module Model
 			}
 			@list.sort_by! {|acc| [acc.type,acc.currencyCode]}
 			logger.debug("#{self.class} Filtering retrieved accounts by: #{allowedAccounts}")
-			self.filterByIdsList(allowedAccounts)
+			self.filterByIdsList(allowedAccounts, userId)
 		end
 	end
 end

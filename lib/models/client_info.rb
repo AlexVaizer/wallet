@@ -5,6 +5,7 @@ module Model
 			idField: '_id',
 			fields:[
 				{ name: '_id', type: :text},
+				{ name: 'userId', type: :text},
 				{ name: 'clientId', type: :text},
 				{ name: 'name', type: :text},
 				{ name: 'webHookUrl', type: :text},
@@ -29,6 +30,7 @@ module Model
 			@permissions = clientInfo['permissions']
 			@timeUpdated = Time.now
 			@_id = userId
+			@userId = userId
 		end
 	end
 	class ClientInfosList < BaseList

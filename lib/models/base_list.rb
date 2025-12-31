@@ -20,7 +20,8 @@ module Model
 		def fieldNames
 			return self.model.fieldSet.map { |e| e.name }
 		end
-		def filterByIdsList(ids = [])
+		def filterByIdsList(ids = [],userId = '')
+			ids = ids.map { |e| "#{e}_#{userId}" }
 			return @list = @list.select{|i| ids.include?(i._id) } if !ids.empty?
 		end
 		def empty?

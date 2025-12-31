@@ -23,7 +23,7 @@ module Model
 			DATA_MODEL_OBJ
 		end
 		def parseMonobankJar(options,userId)
-			@_id = options[:id] 
+			@_id = "#{options[:id]}_#{userId}"
 			@sendId = options[:sendId]
 			@title = options[:title]
 			@description = options[:description] 
@@ -58,7 +58,7 @@ module Model
 				@list.push(obj)
 			}
 			logger.debug("#{self.class} Filtering retrieved jars by: #{allowedJars}")
-			self.filterByIdsList(allowedJars)
+			self.filterByIdsList(allowedJars,userId)
 		end
 	end
 end
