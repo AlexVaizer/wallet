@@ -1,14 +1,9 @@
 module Controllers
 	module Api	
 		class Base
-			ERROR_PREFIX = "#{Controllers::Api::CLASS_ERROR_CODES['Base']}"
-			SUCCESS_CODE = 200
 			DEFAULT_HEADERS = {
 				"Content-Type" => "application/json"
 			}
-			HAS_REQUEST_BODY = false 
-			HAS_RESPONSE_BODY = true
-			REQUIRED_PERMISSION = 'API_ADMIN'
 			include Logging
 			include Api::RequestValidations
 			attr_reader :response, :request, :protected, :token, :user, :modelName, :model, :id, :settings, :requiredPermission
@@ -53,7 +48,7 @@ module Controllers
 				if @model.error
 					@error = NotFoundError.new("Not Found")
 					@error.internalCode = "#{self.class::ERROR_PREFIX}-03"
-					@error.details = {params: {userId: @id}}
+					@error.details = {params: {id: @id}}
 					raise @error 
 				end
 			end

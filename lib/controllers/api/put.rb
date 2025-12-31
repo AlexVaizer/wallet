@@ -2,7 +2,10 @@ module Controllers
 	module Api
 		class Put < Base
 			ERROR_PREFIX = Controllers::Api::CLASS_ERROR_CODES['Put']
-			PATH_PREFIX = 'admin/'
+			SUCCESS_CODE = 200
+			HAS_REQUEST_BODY = true
+			HAS_RESPONSE_BODY = true
+			# PATH_PREFIX = 'admin/'
 			def run
 				validateRequest
 				self.getBySymbol

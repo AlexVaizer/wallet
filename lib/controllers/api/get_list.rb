@@ -5,7 +5,7 @@ module Controllers
 			ERROR_PREFIX = Controllers::Api::CLASS_ERROR_CODES['GetList']
 			HAS_REQUEST_BODY = false
 			HAS_RESPONSE_BODY = true
-			PATH_PREFIX = 'admin/'
+			SUCCESS_CODE = 200
 			def getBySymbol
 				begin
 					@model = Model.getListBySymbol(@modelName)

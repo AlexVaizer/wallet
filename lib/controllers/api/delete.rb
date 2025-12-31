@@ -1,11 +1,10 @@
 module Controllers
 	module Api
 		class Delete < Base
-			SUCCESS_CODE = 204
+			SUCCESS_CODE = 200
 			HAS_REQUEST_BODY = false # TODO
 			HAS_RESPONSE_BODY = false # TODO
 			ERROR_PREFIX = "#{Controllers::Api::CLASS_ERROR_CODES['Delete']}"
-			PATH_PREFIX = 'admin/'
 			def validateRequest
 				validateHeaders
 				authorize

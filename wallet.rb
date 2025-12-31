@@ -48,4 +48,12 @@ $walletSettings.save_pid
 		send_file(File.join('./public', params['splat'][0]))
 	end
 
-	require File.expand_path('./api.rb')
+	api_logic = lambda do 
+		@c = Wallet.constructor(request).run!
+		status @c.response.status
+		headers @c.response.headers
+		body @c.response.to_h.to_json
+	end 
+	[:get, :post, :put, :delete, :patch].each do |verb|
+		send(verb, '/api/*', &api_logic)
+	end

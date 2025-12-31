@@ -7,13 +7,38 @@ require File.expand_path('./lib/controllers.rb')
 module Wallet
 	module Api 
 		module Admin
-			class Post < Controllers::Api::Post ;end
-			class Get < Controllers::Api::Get ;end
-			class GetList < Controllers::Api::GetList ;end
-			class Patch < Controllers::Api::Patch ;end
-			class Put < Controllers::Api::Put ;end
-			class Delete < Controllers::Api::Delete ;end
-			class GetProps < Controllers::Api::GetProps ;end
+			class Post < Controllers::Api::Post 
+				REQUIRED_PERMISSION = 'API_ADMIN'
+				PATH_PREFIX = 'admin/'
+			end
+			class Get < Controllers::Api::Get 
+				REQUIRED_PERMISSION = 'API_ADMIN'
+				PATH_PREFIX = 'admin/'
+			end
+			class GetList < Controllers::Api::GetList 
+				REQUIRED_PERMISSION = 'API_ADMIN'
+				PATH_PREFIX = 'admin/'
+			end
+			class Patch < Controllers::Api::Patch 
+				REQUIRED_PERMISSION = 'API_ADMIN'
+				PATH_PREFIX = 'admin/'
+			end
+			class Put < Controllers::Api::Put 
+				REQUIRED_PERMISSION = 'API_ADMIN'
+				PATH_PREFIX = 'admin/'
+			end
+			class Delete < Controllers::Api::Delete 
+				REQUIRED_PERMISSION = 'API_ADMIN'
+				PATH_PREFIX = 'admin/'
+			end
+			class GetProps < Controllers::Api::GetProps 
+				REQUIRED_PERMISSION = 'API_ADMIN'
+				PATH_PREFIX = 'admin/'
+			end
+			class GetProp < Controllers::Api::GetProp 
+				REQUIRED_PERMISSION = 'API_ADMIN'
+				PATH_PREFIX = 'admin/'
+			end
 		end
 		module Customer
 			# Need to add validations for posting/getting not own IDs
@@ -23,35 +48,59 @@ module Wallet
 			#class Delete < Controllers::Api::Delete ;end
 			#class Get < Controllers::Api::Get ;end
 			
-			#List should be filtered by own only when getFromDb'ing
-			#class GetList < Controllers::Api::GetList ;end
-			#also should define 
+			class GetList < Controllers::Api::GetList
+				REQUIRED_PERMISSION = 'API_CUSTOMER'
+				PATH_PREFIX = 'customer/'
+				def run
+					if !['jar','account', 'clientInfo'].include?(@modelName.to_s)
+						@error = Controllers::Api::NotFoundError.new("Not Found")
+						@error.internalCode = "#{self.class::ERROR_PREFIX}-03"
+						@error.details = {params: {model: @modelName}}
+						raise @error
+					end
+					validateRequest
+					parseParams
+					getBySymbol
+					@model.getFromDb(@page,@size,{},@sort,@user)
+				end
+			end
+			
 
-			class Schema < Controllers::Api::GetProps ;end
+			# class Schema < Controllers::Api::GetProps 
+			# 	REQUIRED_PERMISSION = 'API_CUSTOMER'
+			# 	PATH_PREFIX = 'customer/'
+			# end
 		end
 	end
-	def contructClassFromCapitalizedStrings(array = [])
-		raise ArgumentError.new("Cannot Construct object from empty array") if array.empty
+	def self.contructClassFromCapitalizedStrings(array = [])
+		raise ArgumentError.new("Cannot Construct object from empty array") if array.empty?
 		str = array.join("::")
-		return cls = Object.const_get(str)
+		cls = Object.const_get(str)
+		puts cls
+		return cls
 	end
-	MockSinReq = Struct.new(:path_info, :request_method, keyword_init: true)
-	def constructor(sinatraRequest = MockSinReq.new())
-		prefix = 'Wallet' # TODO replace to proper function
+	MockSinReq = Struct.new(:path_info, :request_method, :ip, keyword_init: true)
+	def self.constructor(sinatraRequest = MockSinReq.new())
+		prefix = 'Wallet'
 		arr = sinatraRequest.path_info.split("/")
+		arr.shift # remove impact of / on start of path
 		methodClassName = sinatraRequest.request_method.capitalize
 		mod = arr[0].downcase
 		subMod = arr[1].downcase
-		modelName = arr[2].downcase
+		modelName = arr[2]
 		id = arr[3]
+		puts "Module: #{mod}, Submodule: #{subMod}, Model Name: #{modelName}"
 		case mod
 		when 'api'
 			modClassName = "Api"
 			case subMod
 			when 'admin'
 				subModClassName = "Admin"
+				methodClassName = "GetProp" if modelName == "props"
+				methodClassName = "GetProps" if modelName == "props" && id.nil?
 			when 'customer'
 				subModClassName = "Customer"
+				#methodClassName = "Schema" if modelName == "schema"
 			else
 				subModClassName = nil
 			end
@@ -64,9 +113,16 @@ module Wallet
 		if id.nil? && methodClassName == "Get"
 			methodClassName = "GetList"
 		end
+
 		#check if one of modules/submodules is not nil
+		raise StandardError.new("unknown module") if modClassName.nil? 
+		raise StandardError.new("unknown submodule") if subModClassName.nil?
 		#construct: pass sinatraRequest, model and id(if any) to controllers as args
-		c = contructClassFromCapitalizedStrings([prefix,modClassName,subModClassName]).new(sinatraRequest, optsHash)
+		return c = Wallet.contructClassFromCapitalizedStrings([prefix,modClassName,subModClassName,methodClassName]).new(sinatraRequest)
 		#return Controllers
 	end
 end
+
+# r = Wallet::MockSinReq.new(path_info: '/api/admin/user/vzr', request_method: 'POST', ip: '127.0.0.1')
+# w = Wallet.constructor(r)
+# puts w.class

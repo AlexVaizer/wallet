@@ -114,7 +114,7 @@ Setting = Struct.new(:_id, :value, keyword_init: true)
 				data.map { |e| self.push(Setting.new(e)) } 
 				return self
 			ensure
-				client.close # if client
+				client.close if client
 			end
 		end
 	end
