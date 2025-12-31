@@ -19,7 +19,7 @@ module Wallet
 			end
 		end
 		module Customer
-			# Need to add validations for posting/getting not own IDs
+			# Need to add validations for posting/deleting not own IDs
 			#class Post < Controllers::Api::Post ;end 
 			#class Patch < Controllers::Api::Patch ;end
 			#class Put < Controllers::Api::Put ;end
@@ -56,15 +56,16 @@ module Wallet
 			end
 			
 
-			# class Schema < Controllers::Api::GetProps 
-			# 	REQUIRED_PERMISSION = 'API_CUSTOMER'
-			# 	PATH_PREFIX = 'customer/'
-			# end
+			class Schema < Controllers::Api::Schema 
+				REQUIRED_PERMISSION = 'API_CUSTOMER'
+				PATH_PREFIX = 'customer/'
+			end
 		end
 	end
 	def self.contructClassFromCapitalizedStrings(array = [])
-		raise ArgumentError.new("Cannot Construct object from empty array") if array.empty?
+		raise ArgumentError.new("Cannot Construct object from empty array or elements") if array.empty? || array.include?(nil)
 		str = array.join("::")
+		# needs to be refactored as raises error when module unknown
 		cls = Object.const_get(str)
 		puts cls
 		return cls
@@ -79,7 +80,7 @@ module Wallet
 		subMod = arr[1].downcase
 		modelName = arr[2]
 		id = arr[3]
-		puts "Module: #{mod}, Submodule: #{subMod}, Model Name: #{modelName}"
+		#puts "Module: #{mod}, Submodule: #{subMod}, Model Name: #{modelName}"
 		case mod
 		when 'api'
 			modClassName = "Api"
@@ -90,26 +91,17 @@ module Wallet
 				methodClassName = "GetProps" if modelName == "props" && id.nil?
 			when 'customer'
 				subModClassName = "Customer"
-				#methodClassName = "Schema" if modelName == "schema"
+				methodClassName = "Schema" if modelName == "schema"
 			else
-				subModClassName = nil
+				subModClassName = subMod.capitalize
 			end
-		# when 'erb'
-		# 	modClassName = "Erb"
 		else
 			modClassName = nil
+			raise StandardError.new("unknown module") if modClassName.nil?  #won't hit it for now as sinatra proxies only /api/* to Wallet
 		end
-		
-		if id.nil? && methodClassName == "Get"
-			methodClassName = "GetList"
-		end
-
-		#check if one of modules/submodules is not nil
-		raise StandardError.new("unknown module") if modClassName.nil? 
-		raise StandardError.new("unknown submodule") if subModClassName.nil?
-		#construct: pass sinatraRequest, model and id(if any) to controllers as args
-		return c = Wallet.contructClassFromCapitalizedStrings([prefix,modClassName,subModClassName,methodClassName]).new(sinatraRequest)
-		#return Controllers
+		methodClassName = "GetList" if id.nil? && methodClassName == "Get"
+		#construct: pass sinatraRequest to controllers as args
+		return Wallet.contructClassFromCapitalizedStrings([prefix,modClassName,subModClassName,methodClassName]).new(sinatraRequest)
 	end
 end
 
