@@ -7,37 +7,15 @@ require File.expand_path('./lib/controllers.rb')
 module Wallet
 	module Api 
 		module Admin
-			class Post < Controllers::Api::Post 
-				REQUIRED_PERMISSION = 'API_ADMIN'
-				PATH_PREFIX = 'admin/'
-			end
-			class Get < Controllers::Api::Get 
-				REQUIRED_PERMISSION = 'API_ADMIN'
-				PATH_PREFIX = 'admin/'
-			end
-			class GetList < Controllers::Api::GetList 
-				REQUIRED_PERMISSION = 'API_ADMIN'
-				PATH_PREFIX = 'admin/'
-			end
-			class Patch < Controllers::Api::Patch 
-				REQUIRED_PERMISSION = 'API_ADMIN'
-				PATH_PREFIX = 'admin/'
-			end
-			class Put < Controllers::Api::Put 
-				REQUIRED_PERMISSION = 'API_ADMIN'
-				PATH_PREFIX = 'admin/'
-			end
-			class Delete < Controllers::Api::Delete 
-				REQUIRED_PERMISSION = 'API_ADMIN'
-				PATH_PREFIX = 'admin/'
-			end
-			class GetProps < Controllers::Api::GetProps 
-				REQUIRED_PERMISSION = 'API_ADMIN'
-				PATH_PREFIX = 'admin/'
-			end
-			class GetProp < Controllers::Api::GetProp 
-				REQUIRED_PERMISSION = 'API_ADMIN'
-				PATH_PREFIX = 'admin/'
+			# Initiate all controllers 
+  			CONTROLLERS = [:Post, :Get, :GetList, :Patch, :Put, :Delete, :GetProps, :GetProp]
+			CONTROLLERS.each do |class_name|
+				parent_class = Controllers::Api.const_get(class_name)
+				klass = Class.new(parent_class) do
+					const_set(:REQUIRED_PERMISSION, 'API_ADMIN')
+					const_set(:PATH_PREFIX, 'admin/')
+				end
+				const_set(class_name, klass)
 			end
 		end
 		module Customer
