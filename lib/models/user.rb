@@ -3,9 +3,10 @@ module Model
 		require 'bcrypt'
 		DATA_MODEL = {
 			tableName: 'users',
-			idField: '_id',
+			idField: 'userId',
 			fields: [ 
 				{ name: '_id', type: :text},
+				{ name: 'userId', type: :text},
 				{ name: 'password', type: :password},
 				{ name: 'monoApiKey', type: :text},
 				{ name: 'allowedAccountIds', type: :array},

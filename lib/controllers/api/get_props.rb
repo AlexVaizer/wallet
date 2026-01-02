@@ -17,10 +17,6 @@ module Controllers
 			HAS_RESPONSE_BODY = true
 			ERROR_PREFIX = "#{Controllers::Api::CLASS_ERROR_CODES['GetProp']}"
 			SUCCESS_CODE = 200
-			def validateRequest
-				validateHeaders
-				authorize
-			end
 			def run
 				validateRequest
 				s = Controllers::Settings.new().getFromDb

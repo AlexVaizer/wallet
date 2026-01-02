@@ -58,13 +58,13 @@ module Model
 		end
 
 		def getFromDb
-			logger.debug("#{self.class} Getting #{self.model.tableName} by '#{@_id}' id from DB")
+			logger.debug("#{self.class} Getting #{self.model.tableName} by '#{model.idField}=#{self.instance_variable_get("@#{model.idField}")}' from DB")
 			begin
 				client = Mongo::Client.new(Model::MONGO_STRING, database: Model::MONGO_DATABASE)
 				coll = client[tableNameSym]
-				data = coll.find({idFieldSym => @_id}).first
+				data = coll.find({idFieldSym => self.instance_variable_get("@#{model.idField}")}).first
 				if data.nil?
-					@error = {code: 404,message:"Could not find #{self.model.tableName} by '#{@_id}' id"}
+					@error = {code: 404,message:"Could not find #{self.model.tableName} by '#{self.instance_variable_get("@#{model.idField}")}' id"}
 					logger.debug(@error.to_s)
 				else
 					self.parseOptions!(data)
@@ -75,11 +75,11 @@ module Model
 			return self
 		end
 		def saveToDb
-			logger.debug("#{self.class} Replacing #{self.model.tableName} by '#{@_id}'")
+			logger.debug("#{self.inspect} Replacing #{self.model.tableName} by '#{@_id}'")
 			begin
 				client = Mongo::Client.new(Model::MONGO_STRING, database: Model::MONGO_DATABASE)
 				collection = client[tableNameSym]
-				data = collection.replace_one({idFieldSym => @_id},self.to_bson, upsert: true)
+				data = collection.replace_one({idFieldSym => self.instance_variable_get("@#{model.idField}")},self.to_bson, upsert: false)
 			ensure 
 				client.close if client
 			end
@@ -92,7 +92,6 @@ module Model
 				client = Mongo::Client.new(Model::MONGO_STRING, database: Model::MONGO_DATABASE)
 				collection = client[tableNameSym]
 				payload = self.to_bson
-				payload[:timeCreated] = Time.now
 				data = collection.insert_one(payload)
 			ensure
 				client.close if client
@@ -104,7 +103,7 @@ module Model
 			begin
 				client = Mongo::Client.new(Model::MONGO_STRING, database: Model::MONGO_DATABASE)
 				collection = client[self.model.tableName.to_sym]
-				data = collection.delete_one({idFieldSym => @_id})
+				data = collection.delete_one({idFieldSym => self.instance_variable_get("@#{model.idField}")})
 			ensure
 				client.close if client
 			end

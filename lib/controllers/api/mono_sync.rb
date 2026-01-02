@@ -19,15 +19,15 @@ module Controllers
 				clientInfo.delete('jars')
 				@clientInfo = Model::ClientInfo.new()
 				logger.debug("Parsing Client Info from Monobank/Mock")
-				@clientInfo.parseMonobankClientInfo(clientInfo,@user._id)
+				@clientInfo.parseMonobankClientInfo(clientInfo,@user.userId)
 				logger.debug("Getting Client Info and Accounts from Etherscan")
 				ethClientInfo = DataFactory::ETH.get_client_info(@user, @settings)
 				@accountsList = Model::AccountsList.new()
 				logger.debug("Parsing Accounts from Monobank and Etherscan")
-				@accountsList.parseApi(monoAccounts, ethClientInfo[:balances], ethClientInfo[:last_price],@user.allowedAccountIds,@user._id)
+				@accountsList.parseApi(monoAccounts, ethClientInfo[:balances], ethClientInfo[:last_price],@user.allowedAccountIds,@user.userId)
 				@jarsList = Model::JarsList.new()
 				logger.debug("Parsing Jars")
-				@jarsList.parseMonobankJars(jars,@user.allowedJarIds,@user._id)
+				@jarsList.parseMonobankJars(jars,@user.allowedJarIds,@user.userId)
 			end
 			def saveAllToDb
 				@clientInfo.saveToDb
@@ -39,7 +39,7 @@ module Controllers
 			end
 			def getClientInfo
 				#self.handleError("User was not defined","#{ERROR_PREFIX}-01-02",500) if !@user
-				@clientInfo = Model::ClientInfo.new({_id: @user._id}).getFromDb
+				@clientInfo = Model::ClientInfo.new({_id: @user.userId}).getFromDb
 				#api_timeout = @settings.get("client.updateTimeoutSeconds") || API_UPDATE_TIMEOUT
 				#isValid = @clientInfo.timeUpdated > (Time.now - api_timeout)
 				#logger.debug("ClientInfo validity: #{isValid}")
@@ -47,8 +47,8 @@ module Controllers
 				self.getMonobankClientInfo
 				self.saveAllToDb
 				logger.debug("Getting Client Accounts and Jars from DB")
-				@accountsList = Model::AccountsList.new().getFromDb(0,15,{userId: @user._id})
-				@jarsList = Model::JarsList.new().getFromDb(0,15,{userId: @user._id})
+				@accountsList = Model::AccountsList.new().getFromDb(0,15,{userId: @user.userId})
+				@jarsList = Model::JarsList.new().getFromDb(0,15,{userId: @user.userId})
 			end
 			def run
 				validateRequest

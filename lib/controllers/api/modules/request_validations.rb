@@ -21,7 +21,7 @@ module Controllers
 			def parseToken
 				reqToken = @request.cookies['token']
 				@token = Token.new(reqToken,@settings)
-				@user = Model::User.new({_id:@token.payload["userId"]}).getFromDb if @token.isValid
+				@user = Model::User.new({userId:@token.payload["userId"]}).getFromDb if @token.isValid
 				if !@token.isValid || @user.error
 					@error = Api::AuthenticationError.new("Token invalid")
 					@error.internalCode = "#{self.class::ERROR_PREFIX}-01"
@@ -34,9 +34,7 @@ module Controllers
 					parseToken
 					if @requiredPermission
 						logger.debug("Checking User's Permissions for '#{@requiredPermission}' role")
-						return true if @user.permissions.include?(@requiredPermission) 
-						
-						logger.debug("No Needed Permissions for user #{@user._id}. Required: #{@requiredPermission}. Given: #{@user.permissions}")
+						return true if @user.permissions.include?(@requiredPermission)
 						@error = Api::AuthorizationError.new("No Needed Permissions. Required: #{@requiredPermission}. Given: #{@user.permissions}")
 						@error.internalCode = "#{self.class::ERROR_PREFIX}-04"
 						raise @error

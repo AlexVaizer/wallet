@@ -19,14 +19,20 @@ module Controllers
 				@protected = true
 				@requiredPermission = self.class::REQUIRED_PERMISSION
 			end
-			def getBySymbol
+			def getModelBySymbol
 				begin
 					logger.debug(@modelName)
 					@model = Model.getBySymbol(@modelName)
+					if self.class.const_defined?(:ALLOWED_MODELS) && !self.class::ALLOWED_MODELS.include?(@modelName.to_s)
+						@error = Api::NotFoundError.new("Not Found")
+						@error.internalCode = "#{self.class::ERROR_PREFIX}-05"
+						@error.details = {path: {model: @modelName}}
+						raise @error
+					end
 				rescue
-					@error = NotFoundError.new(@modelName)
+					@error = Api::NotFoundError.new(@modelName)
 					@error.internalCode = "#{self.class::ERROR_PREFIX}-05"
-					@error.details = {value: @modelName}
+					@error.details = {path: {model: @modelName}}
 					raise @error
 				end
 			end
@@ -40,32 +46,40 @@ module Controllers
 				self.parsePath
 				@token = nil
 			end
-			def dbAction
-				@model._id = @id
-				@model.getFromDb
-				if @model.error
-					@error = NotFoundError.new("Not Found")
-					@error.internalCode = "#{self.class::ERROR_PREFIX}-03"
-					@error.details = {params: {id: @id}}
-					raise @error 
+			def filterByUser
+				@model.send("#{@model.model.idField}=",@id)
+				if self.class::FILTER_BY_USER
+					@model.getFromDb
+					if @model.error || @user.userId != @model.userId
+						@error = Api::NotFoundError.new("Not Found")
+						@error.internalCode = "#{self.class::ERROR_PREFIX}-03"
+						@error.details = {path: {id: @id}}
+						raise @error 
+					end
 				end
+				return true
+			end
+			def dbAction
+				@model.getFromDb
 			end
 			def run
 				validateRequest
-				self.getBySymbol
+				getModelBySymbol
+				filterByUser
 				dbAction
 			end
 			def run!
 				begin
 					run
 					@response = Api::SuccessResponse.new(success: true, status: self.class::SUCCESS_CODE, data: @model.to_h, headers: DEFAULT_HEADERS)
+					@response.data = {} if !self.class::HAS_RESPONSE_BODY
 					@response.headers["requiredPermission"] = @requiredPermission
-				rescue ValidationError, NotFoundError, AuthenticationError, AuthorizationError => e
+				rescue Api::ValidationError, Api::NotFoundError, Api::AuthenticationError, Api::AuthorizationError => e
 					logger.warn(e.inspect)
-					@response = ErrorResponse.new(success: false, status: e.class::HTTP_CODE, headers: DEFAULT_HEADERS, error: e.to_h)
+					@response = Api::ErrorResponse.new(success: false, status: e.class::HTTP_CODE, headers: DEFAULT_HEADERS, error: e.to_h)
 					#logger.debug(e.backtrace)
 				rescue => e
-					error = InternalError.new("Internal Error")
+					error = Api::InternalError.new("Internal Error")
 					logger.error(e.inspect)
 					error.internalCode = "#{self.class::ERROR_PREFIX}-0"
 					error.details = e.inspect

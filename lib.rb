@@ -9,6 +9,7 @@ module Wallet
 		class UnknownController < Controllers::Api::Base
 			REQUIRED_PERMISSION = 'API_CUSTOMER' 
 			ERROR_PREFIX = '0'
+			FILTER_BY_USER = false
 			def parsePath
 				@modelName = nil
 				@id = nil
@@ -20,95 +21,85 @@ module Wallet
 				raise @error 
 			end
 		end
-		module Admin
-  			CONTROLLERS = [:Post, :Get, :GetList, :Patch, :Put, :Delete, :GetProps, :GetProp]
-			CONTROLLERS.each do |class_name|
-				parent_class = Controllers::Api.const_get(class_name)
-				klass = Class.new(parent_class) do
-					const_set(:REQUIRED_PERMISSION, 'API_ADMIN')
-					const_set(:PATH_PREFIX, 'admin/')
-				end
-				const_set(class_name, klass)
+		def self.constructor(rawClass, sinatraRequest)
+			parsedClass = {
+				prefix: 'Wallet',
+				module: 'Api',
+				subModule: nil,
+				methodName: rawClass[:methodClassName]
+			}
+			parsedClass[:methodName] = "GetList" if rawClass[:id].nil? && rawClass[:methodClassName] == "Get"
+			case rawClass[:subModule]
+			when "admin"
+				parsedClass[:subModule] = "Admin"
+				parsedClass[:methodName] = "GetProp" if rawClass[:modelName] == "props"
+				parsedClass[:methodName] = "GetProps" if rawClass[:modelName] == "props" && rawClass[:id].nil?
+			when "customer"
+				parsedClass[:subModule] = "Customer"
+				parsedClass[:methodName] = "Schema" if rawClass[:modelName] == "schema"
+				parsedClass[:methodName] = "MonoSync" if rawClass[:modelName] == "mono-sync"
+			else
+				return c = Wallet::Api::UnknownController.new(sinatraRequest).run!
 			end
+			return Wallet.contructClassFromCapitalizedStrings(parsedClass.values).new(sinatraRequest)
+		end
+		module Admin
+			def self.renderControllers(array = [], c = nil)
+				array.each do |class_name|
+					parent_class = Controllers::Api.const_get(class_name)
+					klass = Class.new(parent_class) do
+						c.map{|h| self.const_set(h[:key],h[:value])}
+					end if !c.nil?
+					const_set(class_name, klass)
+				end if !array.empty?
+			end
+			DEFAULT_CONSTANTS = [
+				{ key: :REQUIRED_PERMISSION, value: 'API_ADMIN' },
+				{ key: :PATH_PREFIX, value: 'admin/' },
+				{ key: :FILTER_BY_USER, value: false }
+			]
+  			self.renderControllers([:Post,  :Get, :GetList, :Patch, :Put, :Delete, :GetProps, :GetProp],DEFAULT_CONSTANTS)
 		end
 		module Customer
-			CONTROLLERS = [:Get, :GetList, :Schema, :MonoSync, :Post, :Patch, :Put, :Delete]
-			CONTROLLERS.each do |class_name|
-				parent_class = Controllers::Api.const_get(class_name)
-				klass = Class.new(parent_class) do
-					const_set(:REQUIRED_PERMISSION, 'API_CUSTOMER')
-					const_set(:PATH_PREFIX, 'customer/')
-				end
-				const_set(class_name, klass)
+			def self.renderControllers(array = [], c = nil)
+				array.each do |class_name|
+					parent_class = Controllers::Api.const_get(class_name)
+					klass = Class.new(parent_class) do
+						c.map{|h| self.const_set(h[:key],h[:value])}
+					end if !c.nil?
+					const_set(class_name, klass)
+				end if !array.empty?
 			end
-			# Need to add validations for posting/deleting not own IDs
-			#class Post < Controllers::Api::Post ;end 
-			#class Patch < Controllers::Api::Patch ;end
-			#class Put < Controllers::Api::Put ;end
-			#class Delete < Controllers::Api::Delete ;end
-			class Get
-				def run
-					super
-					if @user._id != @model.userId
-						@error = Controllers::Api::NotFoundError.new("Not Found")
-						@error.internalCode = "#{self.class::ERROR_PREFIX}-03"
-						@error.details = {params: {id: @id}}
-						raise @error
-					end
-				end
-			end
-			class GetList
-				def dbAction
-					if !['jar','account', 'clientInfo'].include?(@modelName.to_s)
-						@error = Controllers::Api::NotFoundError.new("Not Found")
-						@error.internalCode = "#{self.class::ERROR_PREFIX}-03"
-						@error.details = {params: {model: @modelName}}
-						raise @error
-					end
-					@model.getFromDb(@page,@size,{},@sort,@user)
-				end
-			end
+			CUSTOM_CONSTANTS = [
+				{ key: :REQUIRED_PERMISSION, value: 'API_CUSTOMER' },
+				{ key: :PATH_PREFIX, value: 'customer/' },
+				{ key: :FILTER_BY_USER, value: true }
+			]
+			DEFAULT_CONSTANTS = CUSTOM_CONSTANTS + [{ key: :ALLOWED_MODELS, value: ['jar','account', 'clientInfo']}]
+			self.renderControllers([:Get, :GetList, :Post, :Patch, :Put, :Delete],DEFAULT_CONSTANTS)
+			self.renderControllers([:Schema, :MonoSync],CUSTOM_CONSTANTS)
 		end
 	end
-	def self.contructClassFromCapitalizedStrings(array = [])
+	def self.contructClassFromCapitalizedStrings(*array)
 		raise ArgumentError.new("Cannot Construct object from empty array or elements") if array.empty? || array.include?(nil)
 		str = array.join("::")
 		return cls = Object.const_get(str)
 	end
-	MockSinReq = Struct.new(:path_info, :request_method, :ip, keyword_init: true)
-	def self.constructor(sinatraRequest = MockSinReq.new())
+	def self.constructor(sinatraRequest = nil)
 		prefix = 'Wallet'
 		arr = sinatraRequest.path_info.split("/")
-		arr.shift # remove impact of / on start of path
-		methodClassName = sinatraRequest.request_method.capitalize
-		mod = arr[0].downcase
-		subMod = arr[1].downcase
-		modelName = arr[2]
-		id = arr[3]
-		#puts "Module: #{mod}, Submodule: #{subMod}, Model Name: #{modelName}"
-		case mod
+		rawClass = {
+			module: arr[1].downcase,
+			subModule: arr[2].downcase,
+			methodClassName: sinatraRequest.request_method.capitalize,
+			modelName: arr[3],
+			id: arr[4]
+		}
+		case rawClass[:module]
 		when 'api'
-			modClassName = "Api"
-			case subMod
-			when 'admin'
-				subModClassName = "Admin"
-
-				#controllers not related to Model
-				methodClassName = "GetProp" if modelName == "props"
-				methodClassName = "GetProps" if modelName == "props" && id.nil?
-			when 'customer'
-				subModClassName = "Customer"
-
-				#controllers not related to Model
-				methodClassName = "Schema" if modelName == "schema"
-				methodClassName = "MonoSync" if modelName == "mono-sync"
-			else
-				return c = Wallet::Api::UnknownController.new(sinatraRequest).run!
-			end
+			Wallet::Api.constructor(rawClass, sinatraRequest)
 		else
 			return c = Wallet::Api::UnknownController.new(sinatraRequest).run!
 		end
-		methodClassName = "GetList" if id.nil? && methodClassName == "Get"
-		return Wallet.contructClassFromCapitalizedStrings([prefix,modClassName,subModClassName,methodClassName]).new(sinatraRequest)
 	end
 end

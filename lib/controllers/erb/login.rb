@@ -18,10 +18,11 @@ module Controllers
 				logger.debug("Params: #{@request.params}, userId: #{@userId.inspect}, password: #{@password}")
 				self.handleError!("User was not defined","#{CONTROLLER_ERROR_PREFIX}-01-01",400) if !@userId
 				self.handleError!("Password was not defined","#{CONTROLLER_ERROR_PREFIX}-01-02",400) if !@userId
-				@user = Model::User.new({_id: @userId}).getFromDb
+				@user = Model::User.new({userId: @userId}).getFromDb
+				logger.debug(@user.inspect)
 				if @user.parseCryptedPass == @password
 					@token = Token.new(nil,@settings)
-					@token.create(userId: @user._id, permissions: @user.permissions)
+					@token.create(userId: @user.userId, permissions: @user.permissions)
 					@response.code = SUCCESS_CODE
 					@response.erb = SUCCESS_ERB
 					@response.success = true

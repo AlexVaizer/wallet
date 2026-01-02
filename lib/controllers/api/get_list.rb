@@ -6,13 +6,20 @@ module Controllers
 			HAS_REQUEST_BODY = false
 			HAS_RESPONSE_BODY = true
 			SUCCESS_CODE = 200
-			def getBySymbol
+			def getListBySymbol
 				begin
+					logger.debug(@modelName)
 					@model = Model.getListBySymbol(@modelName)
+					if self.class.const_defined?(:ALLOWED_MODELS) && !self.class::ALLOWED_MODELS.include?(@modelName.to_s)
+						@error = Api::NotFoundError.new("Not Found")
+						@error.internalCode = "#{self.class::ERROR_PREFIX}-05"
+						@error.details = {path: {model: @modelName}}
+						raise @error
+					end
 				rescue
-					@error = NotFoundError.new("Unknown Model")
-					@error.internalCode = "#{self.class::ERROR_PREFIX}-04"
-					@error.details = {value: @modelName}
+					@error = Api::NotFoundError.new("Not Found")
+					@error.internalCode = "#{self.class::ERROR_PREFIX}-05"
+					@error.details = {path: {model: @modelName}}
 					raise @error
 				end
 			end
@@ -36,12 +43,16 @@ module Controllers
 				parseParams
 			end
 			def dbAction
-				@model.getFromDb(@page,@size,{},@sort)
+				if self.class::FILTER_BY_USER
+					@model.getFromDb(@page,@size,{},@sort,@user)
+				else
+					@model.getFromDb(@page,@size,{},@sort)  
+				end
 			end
 			def run
 				validateRequest
 				parseParams
-				getBySymbol
+				getListBySymbol
 				dbAction
 			end
 		end

@@ -10,15 +10,20 @@ module Controllers
 				path = path.gsub(self.class::PATH_PREFIX,"")
 				@modelName = path.to_sym
 			end
+			def filterByUser
+				@model.userId = @user.userId if self.class::FILTER_BY_USER
+				return true
+			end
 			def dbAction
 				logger.debug("Parsing Payload: #{@requestPayload}")
 				@model.parseOptions(@requestPayload)
 				if @model.error
-					error = ValidationError.new("")
+					error = ValidationError.new("Invalid Request")
 					error.details = @model.error
 					error.internalCode = "#{self.class::ERROR_PREFIX}-06"
 					raise error
 				end
+				filterByUser
 				@model.insertToDb
 			end
 		end

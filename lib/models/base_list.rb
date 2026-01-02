@@ -43,7 +43,7 @@ module Model
 		end
 		def getFromDb(page, size,request,sort = nil, user = nil)
 			logger.debug("#{self.class} Getting #{page} page by #{size} #{model.tableName} from DB with request: #{request}, sort: #{sort}")
-			logger.debug("#{self.class} Also filtering by user: #{user._id}") if !user.nil?
+			logger.debug("#{self.class} Also filtering by user: #{user.userId}") if !user.nil?
 			begin
 				client = Mongo::Client.new(Model::MONGO_STRING, database: Model::MONGO_DATABASE)
 				collection = client[model.tableName.to_sym]
@@ -63,7 +63,7 @@ module Model
 					}
 					}
 				]
-				aggregations.unshift({ "$match": { "userId": user._id } }) if !user.nil?
+				aggregations.unshift({ "$match": { "userId": user.userId } }) if !user.nil?
 				pagedata = collection.aggregate(aggregations)
 				pagedata = pagedata.first
 				self.parseOptions!(pagedata['data'])

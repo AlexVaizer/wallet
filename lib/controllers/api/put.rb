@@ -7,22 +7,16 @@ module Controllers
 			HAS_RESPONSE_BODY = true
 			# PATH_PREFIX = 'admin/'
 			def dbAction
-				@model._id = @id
-				@model.getFromDb
-				if @model.error
-					@error = NotFoundError.new("Not Found")
-					@error.internalCode = "#{self.class::ERROR_PREFIX}-07"
-					@error.details = {params: {userId: @id}}
-					raise @error
-				end
 				logger.debug("Parsing Payload: #{@requestPayload}")
-				@model.parseOptions(@requestPayload)
+				@model.getFromDb
 				if @model.error
 					error = ValidationError.new("")
 					error.details = @model.error
 					error.internalCode = "#{self.class::ERROR_PREFIX}-08"
 					raise error
 				end
+				@model.parseOptions(@requestPayload)
+				@model.userId = @user.userId if self.class::FILTER_BY_USER
 				@model.saveToDb
 			end
 		end
